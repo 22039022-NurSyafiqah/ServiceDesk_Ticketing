@@ -17,6 +17,7 @@ namespace ServiceDesk_Ticketing.Controllers
         public IActionResult Login()
         {
             return View();
+            //return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -30,8 +31,8 @@ namespace ServiceDesk_Ticketing.Controllers
                 if (user != null)
                 {
                     // If successful, redirect to the home page or another page
-                    //return RedirectToAction("Dashboard", "Dashboard");
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Dashboard", "Home");
+                    //return RedirectToAction("Index");
                 }
                 else
                 {

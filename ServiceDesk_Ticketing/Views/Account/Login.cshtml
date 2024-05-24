@@ -1,57 +1,50 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model UserLogin
 
 @{
     ViewData["Title"] = "Login Page";
 }
+<style>
+    h2 {
+        font-family: 'Times New Roman';
+    }
 
+</style>
 
 <div class="container">
-
-    <div class="my-3">
-        <h2>Please sign-in</h2>
+    <div class="text-center mb-5">
+        <h2 class="display-4">Welcome! We are here to help you!</h2>
     </div>
 
 
-    <!--login box-->
-    <form asp-action="Login" method="post">
-        <section class="vh-50 gradient-custom">
-            <div class="container py-4 h-50">
-                <div class="row d-flex justify-content-center align-items-center h-50">
-                    <div class="col-6 col-md-4 col-lg-4 col-xl-4">
-                        <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                            <div class="card-body p-4 text-center">
+    <div class="row justify-content-center align-items-center">
 
-                                <div class="mb-md-5 mt-md-4 pb-5">
+        <!-- Form Column -->
+        <div class="col-md-4">
+            <h5>Please enter the following details:</h5>
 
-                                    <h2 class="fw-bold mb-2 text-uppercase">Login Details</h2>
-                                    <p class="text-grey-50 mb-5">Please enter your Email Address and Password!</p>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="floatingInput" placeholder="youremail@huamin.edu.sg" required>
-                                        <label for="floatingInput">Email Address</label>
-                                    </div>
-                                    <div class="form-floating mb-5">
-                                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
-                                        <label for="floatingPassword">Password</label>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+            <form method="post" asp-controller="Account" asp-action="Login">
+                <div class="mb-3 form-floating">
+                    <input asp-for="Email" class="form-control" placeholder="" />
+                    <label asp-for="Email">Email Address</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
-            </div>
-    </form>
-    @section Scripts {
-        @{
-            await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        }
-    }
-    </section>
+                <div class="mb-3 form-floating">
+                    <input asp-for="Password" class="form-control" placeholder="" />
+                    <label asp-for="Password">Password</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-3 text-danger">
+                    @ViewData["Message"]
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" type="submit">Login</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Image Column -->
+        <div class="col-md-5 text-center">
+            <img src="~/images/helpdesk.png" class="img-fluid" alt="Helpdesk" />
+        </div>
+    </div>
+</div>

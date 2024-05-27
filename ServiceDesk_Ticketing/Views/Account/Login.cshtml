@@ -1,57 +1,58 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model ServiceDesk_Ticketing.Models.UserLogin
 
-@{
-    ViewData["Title"] = "Login Page";
-}
-
-
-<div class="container">
-
-    <div class="my-3">
-        <h2>Please sign-in</h2>
+@* <form asp-action="Login" method="post">
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email"></span>
     </div>
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+    <button type="submit">Login</button>
+</form>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@
 
-    <!--login box-->
-    <form asp-controller="Home "asp-action="Login" method="post">
-        <section class="vh-50 gradient-custom">
-            <div class="container py-4 h-50">
-                <div class="row d-flex justify-content-center align-items-center h-50">
-                    <div class="col-6 col-md-4 col-lg-4 col-xl-4">
-                        <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                            <div class="card-body p-4 text-center">
-
-                                <div class="mb-md-5 mt-md-4 pb-5">
-
-                                    <h2 class="fw-bold mb-2 text-uppercase">Login Details</h2>
-                                    <p class="text-grey-50 mb-5">Please enter your Email Address and Password!</p>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="floatingInput" placeholder="youremail@huamin.edu.sg" required>
-                                        <label for="floatingInput">Email Address</label>
-                                    </div>
-                                    <div class="form-floating mb-5">
-                                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
-                                        <label for="floatingPassword">Password</label>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
+         <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <title>Login</title>
+            <link rel="stylesheet" href="~/css/site.css" /> <!-- Reference your stylesheet -->
+        </head>
+        <div class="row justify-content-center mt-5">
+            <h2 class="text-center mb-5">Welcome to Service Desk Ticketing System</h2>
+            <!-- Image Column -->
+            <div class="col-md-5 text-center">
+                <img src="~/images/helpdesk.png" class="img-fluid" alt="Helpdesk" />
             </div>
-    </form>
-    @section Scripts {
-        @{
-            await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        }
-    }
-    </section>
+        <body>
+            <div class="card text-white bg-dark mb-3" style="max-width: 20rem;">
+                <div class="card-header"><h2>Login</h2></div>
+                <div class="card-body">
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3 form-floating">
+                            <input asp-for="Email" class="form-control" placeholder="" />
+                            <label asp-for="Email">Email Address</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 form-floating">
+                            <input asp-for="Password" class="form-control" placeholder="" />
+                            <label asp-for="Password">Password</label>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+      
+            </div>
+            @section Scripts {
+                <partial name="_ValidationScriptsPartial" />
+            }
+         </body>
+        </html> 

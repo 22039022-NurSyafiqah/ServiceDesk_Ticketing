@@ -3,15 +3,75 @@
 *@
 @{
 }
+
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <img src="~/images/login.png" height="120" class="me-3" />
-    <!--<h2>Welcome to Service Ticketing System</h2>-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/dashboard.css" /> <!-- Reference your stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRn5g5z1am6z9/smIdow6/67O2M5p0/NSFFWfuvl+N" crossorigin="anonymous">
+    <style>
+        .dashboard-container {
+            padding: 20px;
+        }
 
-    <h2>Welcome to Service Ticketing System</h2>
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-    <p>Use this page is the dashboard.</p>
-</div>
+        .card-header {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .card-content {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Dashboard</h1>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i> Overview
+            </div>
+            <div class="card-content">
+                <p>Welcome to the dashboard! Here you can see an overview of the system.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tasks"></i> Tasks
+            </div>
+            <div class="card-content">
+                <ul>
+                    <li>Task 1</li>
+                    <li>Task 2</li>
+                    <li>Task 3</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bell"></i> Notifications
+            </div>
+            <div class="card-content">
+                <p>No new notifications.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,16 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ServiceDesk_Ticketing.Models
-{
-    public class UserLogin
-    {
-        [Required(ErrorMessage = "Please enter your Email")]
-        [EmailAddress(ErrorMessage = "Invalid Email Address")]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; } = string.Empty;
+namespace ServiceDesk_Ticketing.Models;
 
-        [Required(ErrorMessage = "Please enter your Password")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
-    }
+public class UserLogin
+{
+    [Required(ErrorMessage = "Please enter Email Address")]
+    [EmailAddress(ErrorMessage = "Invalid Email Address")]
+    [DataType(DataType.EmailAddress)]
+    public string email { get; set; } = null!;
+
+    [Required(ErrorMessage = "Please enter Password")]
+    [DataType(DataType.Password)]
+    public string password { get; set; } = null!;
 }

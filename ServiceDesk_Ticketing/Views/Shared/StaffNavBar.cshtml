@@ -1,0 +1,23 @@
+﻿<div>
+    <nav class="navbar navbar-expand-lg bg-light" data-bs-theme="light">
+        <div class="container-fluid">
+            <img src="~/images/schoollogo.jpg" height="72" class="me-3" />
+            <span class="navbar-brand">Huamin Primary School</span>
+            <ul class="navbar-nav me-auto"></ul>
+
+
+            <!-- User info and logout link -->
+            <div>
+                <ul class="nav navbar-nav">
+                    <li class="nav-item">
+                        <div class="nav-link">
+                            Log Out 
+                            <a class="bi-box-arrow-right text-decoration-none text-muted" asp-controller="Account"
+                               asp-action="Logoff" data-toggle="tooltip" ></a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>

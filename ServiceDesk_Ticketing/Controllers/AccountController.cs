@@ -1,69 +1,126 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ServiceDesk_Ticketing.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+using RP.SOI.DotNet.Utils;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
-namespace ServiceDesk_Ticketing.Controllers
+
+namespace ServiceDesk_Ticketing.Controllers;
+
+public class AccountController : Controller
 {
-    public class AccountController : Controller
+    private const string LOGIN_SQL =
+   @"SELECT * FROM SysUser 
+            WHERE Email = '{0}' 
+              AND UserPw = HASHBYTES('SHA1', '{1}')";
+
+    private const string LASTLOGIN_SQL =
+       @"UPDATE SysUser SET LastLogin=GETDATE() WHERE Email='{0}'";
+
+    private const string ROLE_COL = "UserRole";
+    private const string NAME_COL = "FullName";
+    private const string EMAIL_COL = "Email";
+
+
+    private const string REDIRECT_CNTR = "Home";
+    private const string REDIRECT_ACTN = "HomePage";
+
+    private const string LOGIN_VIEW = "UserLogin";
+
+    [AllowAnonymous]
+    public IActionResult Login(string returnUrl = null!)
     {
-        // Mock user data for demonstration purposes. Replace with your actual database context.
-        private readonly List<User> _users = new List<User>
-        {
-            new User { Email = "user1@example.com", Password = "Password1" },
-            new User { Email = "user2@example.com", Password = "Password2" }
-        };
+        TempData["ReturnUrl"] = returnUrl;
+        return View(LOGIN_VIEW);
+    }
 
-        [HttpGet]
-        public IActionResult Login()
+    // Log In
+    [AllowAnonymous]
+    [HttpPost]
+    public IActionResult Login(UserLogin user)
+    {
+        if (!ModelState.IsValid)
         {
-            return View();
+            // If model state is invalid (e.g., validation failed), return the login view with errors
+            return View(LOGIN_VIEW);
         }
-
-        [HttpPost]
-        public IActionResult Login(UserLogin model)
+        
+        if (!AuthenticateUser(user.email, user.password, out ClaimsPrincipal principal))
         {
-            if (ModelState.IsValid)
-            {
-                // Perform login logic here. Replace with actual database check.
-                var user = _users.SingleOrDefault(u => u.Email.Trim() == model.Email.Trim() && u.Password.Trim() == model.Password.Trim());
+            ViewData["Message"] = "Incorrect Email Address or Password";
+            ViewData["MsgType"] = "warning";
+            return View(LOGIN_VIEW);
+        }
+        else
+        {
+            HttpContext.SignInAsync(
+               CookieAuthenticationDefaults.AuthenticationScheme,
+               principal);
 
-                if (user != null)
-                {
-                    // Logging successful login
-                    Console.WriteLine($"User {user.Email} logged in successfully.");
-                    // If successful, redirect to the home page or another page
-                    return RedirectToAction("Homepage", "Home");
-                }
-                else
-                {
-                    // If unsuccessful, add a model error and log the attempt
-                    Console.WriteLine("Invalid login attempt.");
-                    ModelState.AddModelError("", "Invalid login attempt.");
-                }
-            }
-            else
+            // Update the Last Login Timestamp of the User
+            DBUtl.ExecSQL(LASTLOGIN_SQL, user.email);
+
+            if (TempData["returnUrl"] != null)
             {
-                Console.WriteLine("Model state is invalid.");
-                foreach (var modelState in ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        Console.WriteLine(error.ErrorMessage);
-                    }
-                }
+                string returnUrl = TempData["returnUrl"]!.ToString()!;
+                if (Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
             }
 
-            // If we got this far, something failed; redisplay the form.
-            return View(model);
+            return RedirectToAction(REDIRECT_ACTN, REDIRECT_CNTR);
         }
     }
 
-    public class User
+    // Log Out
+    [Authorize]
+    public IActionResult Logoff(string returnUrl = null!)
     {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
+        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+        return RedirectToAction("Login", "Account");
     }
+
+    [AllowAnonymous]
+    public IActionResult Forbidden()
+    {
+        return View();
+    }
+
+
+    /*    [AllowAnonymous]
+        public IActionResult VerifyUserID(string email)
+        {
+            string select = $"SELECT * FROM SysUser WHERE Userid='{email}'";
+            if (DBUtl.GetTable(select).Rows.Count > 0)
+            {
+                return Json($"[{email}] already in use");
+            }
+            return Json(true);
+        }*/
+
+    private static bool AuthenticateUser(string e, string pw, out ClaimsPrincipal principal)
+    {
+        principal = null!;
+
+        DataTable ds = DBUtl.GetTable(LOGIN_SQL, e, pw);
+        if (ds.Rows.Count == 1)
+        {
+            principal =
+               new ClaimsPrincipal(
+                  new ClaimsIdentity(
+                     new Claim[] {
+                         new Claim(ClaimTypes.Email, e),
+                         new Claim(ClaimTypes.Name, ds.Rows[0][NAME_COL]!.ToString()!),
+                         new Claim(ClaimTypes.Role, ds.Rows[0][ROLE_COL]!.ToString()!)
+                     }, "Basic")
+                  );
+            /* CookieAuthenticationDefaults.AuthenticationScheme));*/
+            return true;
+        }
+        return false;
+    }
+
 }

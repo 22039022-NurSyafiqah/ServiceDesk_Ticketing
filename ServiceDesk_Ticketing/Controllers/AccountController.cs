@@ -11,17 +11,20 @@ namespace ServiceDesk_Ticketing.Controllers;
 
 public class AccountController : Controller
 {
+   // SysUser = su
+   // UserRole = ur
     private const string LOGIN_SQL =
-   @"SELECT * FROM SysUser 
-            WHERE Email = '{0}' 
+   @"SELECT * FROM SysUser su
+            INNER JOIN UserRole ur ON su.User_Role_ID = ur.User_Role_ID
+            WHERE EmailAddress = '{0}' 
               AND UserPw = HASHBYTES('SHA1', '{1}')";
 
     private const string LASTLOGIN_SQL =
-       @"UPDATE SysUser SET LastLogin=GETDATE() WHERE Email='{0}'";
+       @"UPDATE SysUser SET LastLogin=GETDATE() WHERE EmailAddress='{0}'";
 
-    private const string ROLE_COL = "UserRole";
+    private const string ROLE_COL = "User_Role_Name";
     private const string NAME_COL = "FullName";
-    private const string EMAIL_COL = "Email";
+    private const string EMAIL_COL = "EmailAddress";
 
 
     private const string REDIRECT_CNTR = "Home";
@@ -117,7 +120,6 @@ public class AccountController : Controller
                          new Claim(ClaimTypes.Role, ds.Rows[0][ROLE_COL]!.ToString()!)
                      }, "Basic")
                   );
-            /* CookieAuthenticationDefaults.AuthenticationScheme));*/
             return true;
         }
         return false;

@@ -1,7 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "IT Service Support Request Session";
 }
-
+<!-- IT Service/Support Request Session Section -->
 <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Navbar</a>
@@ -41,33 +41,38 @@
     </div>
 </nav>
 
-<div class="text-center">
-    <img src="~/images/login.png" height="120" class="me-3" />
-    <h2>Welcome to Service Ticketing System!</h2>
-    <div class="container mt-5">
-        <div class="header text-center mb-4">
-            <h6>WHICH CATEGORY DOES YOUR ISSUE FALL UNDER?</h6>
-        </div>
-        <form method="post" asp-action="SubmitCategory">
-            <div class="mb-1">
-                <label for="category" class="form-label">Select category</label>
-                <select id="category" name="category" class="form-select">
-                    <option value="">Select category</option>
-                    <option value="category1">Fault Reporting Session</option>
-                    <option value="category2">IT Service Support Request Session</option>
-                    <option value="category3">Facebook Post Session</option>
-                    <option value="category4">Website Update Session</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="others" class="form-label">Others:</label>
-                <input type="text" id="others" name="others" placeholder="Type here..." class="form-control">
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Submit</button>
-        </form>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h3>IT Service/Support Request Session</h3>
     </div>
-
+    <div class="row justify-content-center">
+        <div class="col-md-2">
+            <a href="@Url.Action("PrintingQuota", "Home")" class="btn btn-primary btn-block btn-lg mb-3">
+                Printing Quota
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="@Url.Action("AppSoftwareInstallation", "Home")" class="btn btn-primary btn-block btn-lg mb-3">
+                App/Software Installation
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="@Url.Action("EventSupport", "Home")" class="btn btn-primary btn-block btn-lg mb-3">
+                Event Support
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="@Url.Action("AccountActivation", "Home")" class="btn btn-primary btn-block btn-lg mb-3">
+                Account Activation
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="@Url.Action("RequestForEquipment", "Home")" class="btn btn-primary btn-block btn-lg mb-3">
+                Request for Equipment
+            </a>
+        </div>
+    </div>
     <div class="text-center mt-4">
-        <a href="@Url.Action("HomePage", "Home")" style="display: inline-block; margin-top: 20px;">Back to Home</a>
+        <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Home</a>
     </div>
 </div>

@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "App/Software Installation";
+}
+<!-- IT Service/Support Request Session Section -->
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarColor02">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                        Home
+                        <span class="visually-hidden">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Separated link</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="d-flex">
+                <input class="form-control me-sm-2" type="search" placeholder="Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h3>IT Service/Support Request Session</h3>
+    </div>
+    <div class="text-center mb-4">
+        <a href="@Url.Action("PrintingQuota", "Home")" class="btn btn-primary btn-lg mx-1">Printing Quota</a>
+        <a href="@Url.Action("AppSoftwareInstallation", "Home")" class="btn btn-primary btn-lg mx-1">App/Software Installation</a>
+        <a href="@Url.Action("EventSupport", "Home")" class="btn btn-primary btn-lg mx-1">Event Support</a>
+        <a href="@Url.Action("AccountActivation", "Home")" class="btn btn-primary btn-lg mx-1">Account Activation</a>
+        <a href="@Url.Action("RequestForEquipment", "Home")" class="btn btn-primary btn-lg mx-1">Request for Equipment</a>
+    </div>
+    <div class="text-center mb-4">
+        <h4>App/Software Installation</h4>
+    </div>
+    <form>
+        <div class="mb-3">
+            <label class="form-label">Installation Type:</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="installationType" id="installationType1" value="App Installation on iPad">
+                    <label class="form-check-label" for="installationType1">App Installation on iPad</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="installationType" id="installationType2" value="Software Installation on SSOE devices">
+                    <label class="form-check-label" for="installationType2">Software Installation on SSOE devices</label>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="applicationName" class="form-label">Application Name:</label>
+            <input type="text" id="applicationName" name="applicationName" class="form-control" placeholder="Type here...">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Subscription Type:</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="subscriptionType1" name="subscriptionType" value="Free">
+                    <label class="form-check-label" for="subscriptionType1">Free</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="subscriptionType2" name="subscriptionType" value="Paid">
+                    <label class="form-check-label" for="subscriptionType2">Paid</label>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="paidAmount" class="form-label">If paid, how much?:</label>
+            <input type="text" id="paidAmount" name="paidAmount" class="form-control" placeholder="Type here...">
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Qty:</label>
+            <input type="text" id="quantity" name="quantity" class="form-control" placeholder="Type here...">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Submit</button>
+    </form>
+    <div class="text-center mt-4">
+        <a href="@Url.Action("ITServiceSupportRequest", "Home")" style="display: inline-block; margin-top: 20px;">Back to Home</a>
+    </div>
+</div>
+

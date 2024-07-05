@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServiceDesk_Ticketing.Models;
+using System.Data;
 using System.Diagnostics;
 
 namespace ServiceDesk_Ticketing.Controllers
@@ -92,6 +94,14 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
+
+        [Authorize(Roles = "ICT Team")]
+        public IActionResult ICTDashboard()
+        {
+            return View();
+        }
+
+       
         public IActionResult SubmitCategory(string category)
         {
             if (category == "category1")

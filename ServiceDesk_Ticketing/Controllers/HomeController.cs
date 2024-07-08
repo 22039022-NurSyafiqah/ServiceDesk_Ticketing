@@ -35,19 +35,7 @@ namespace ServiceDesk_Ticketing.Controllers
             return View();
         }
        
-        public IActionResult SubmitFaultReport(string category)
-        {
-            if (category == "category1")
-            {
-                return RedirectToAction("ClassroomCartParkingBay");
-            }
-            else if (category == "category2")
-            {
-                return RedirectToAction("EquipmentToUser");
-            }
-            return RedirectToAction("FaultReport");
-        }
-
+     
         public IActionResult ClassroomCartParkingBay()
         {
             return View();
@@ -72,7 +60,7 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
-
+        
         public IActionResult RequestForEquipment()
         {
             return View();
@@ -100,23 +88,46 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
+        public IActionResult Submission()
+        {
+            return View();
+        }
 
-       
         public IActionResult SubmitCategory(string category)
         {
             if (category == "category1")
             {
-                return RedirectToAction("FaultReport");
+                return RedirectToAction("ClassroomCartParkingBay");
             }
             else if (category == "category2")
             {
-                return RedirectToAction("ITServiceSupportRequest");
+                return RedirectToAction("EquipmentToUser");
             }
             else if (category == "category3")
             {
-                return RedirectToAction("FacebookPost");
+                return RedirectToAction("PrintingQuota");
             }
             else if (category == "category4")
+            {
+                return RedirectToAction("AppSoftwareInstallation");
+            }
+            else if (category == "category5")
+            {
+                return RedirectToAction("EventSupport");
+            }
+            else if (category == "category6")
+            {
+                return RedirectToAction("AccountActivation");
+            }
+            else if (category == "category7")
+            {
+                return RedirectToAction("RequestForEquipment");
+            }
+            else if (category == "category8")
+            {
+                return RedirectToAction("FacebookPost");
+            }
+            else if (category == "category9")
             {
                 return RedirectToAction("WebsiteUpdate");
             }
@@ -125,6 +136,8 @@ namespace ServiceDesk_Ticketing.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

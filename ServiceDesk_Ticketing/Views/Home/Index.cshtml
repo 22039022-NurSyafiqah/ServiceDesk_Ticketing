@@ -2,45 +2,6 @@
     ViewData["Title"] = "Index";
 }
 
-<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarColor02">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">
-                        Home
-                        <span class="visually-hidden">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
-                </li>
-            </ul>
-            <form class="d-flex">
-                <input class="form-control me-sm-2" type="search" placeholder="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        </div>
-    </div>
-</nav>
-
 <div class="text-center">
     <img src="~/images/login.png" height="120" class="me-3" />
     <h2>Welcome to Service Ticketing System!</h2>
@@ -53,11 +14,17 @@
                 <label for="category" class="form-label">Select category</label>
                 <select id="category" name="category" class="form-select">
                     <option value="">Select category</option>
-                    <option value="category1">Fault Reporting Session</option>
-                    <option value="category2">IT Service Support Request Session</option>
-                    <option value="category3">Facebook Post Session</option>
-                    <option value="category4">Website Update Session</option>
+                    <option value="category1">Fault Reporting - Classroom/Cart Parking Bay</option>
+                    <option value="category2">Fault Reporting - Equipment to User</option>
+                    <option value="category3">IT Service Support Request - Printng Quota</option>
+                    <option value="category4">IT Service Support Request - App/Software Installation</option>
+                    <option value="category5">IT Service Support Request - Event Support</option>
+                    <option value="category6">IT Service Support Request - Account Activation</option>
+                    <option value="category7">IT Service Support Request - Request for Equipment</option>
+                    <option value="category8">Facebook Post</option>
+                    <option value="category9">Website Update</option>
                 </select>
+                    
             </div>
             <div class="mb-3">
                 <label for="others" class="form-label">Others:</label>

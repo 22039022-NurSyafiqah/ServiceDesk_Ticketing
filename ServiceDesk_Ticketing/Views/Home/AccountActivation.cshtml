@@ -2,56 +2,12 @@
     ViewData["Title"] = "Account Activation for New Staff";
 }
 <!-- IT Service/Support Request Session Section -->
-<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarColor02">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">
-                        Home
-                        <span class="visually-hidden">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
-                </li>
-            </ul>
-            <form class="d-flex">
-                <input class="form-control me-sm-2" type="search" placeholder="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        </div>
-    </div>
-</nav>
 
 <div class="container mt-5">
     <div class="text-center mb-4">
         <h3>IT Service/Support Request Session</h3>
     </div>
-    <div class="text-center mb-4">
-        <a href="@Url.Action("PrintingQuota", "Home")" class="btn btn-primary btn-lg mx-1">Printing Quota</a>
-        <a href="@Url.Action("AppSoftwareInstallation", "Home")" class="btn btn-primary btn-lg mx-1">App/Software Installation</a>
-        <a href="@Url.Action("EventSupport", "Home")" class="btn btn-primary btn-lg mx-1">Event Support</a>
-        <a href="@Url.Action("AccountActivation", "Home")" class="btn btn-primary btn-lg mx-1">Account Activation</a>
-        <a href="@Url.Action("RequestForEquipment", "Home")" class="btn btn-primary btn-lg mx-1">Request for Equipment</a>
-    </div>
+    
     <div class="text-center mb-4">
         <h4>Account Activation for New Staff</h4>
     </div>
@@ -68,6 +24,15 @@
             <label for="employmentType" class="form-label">Employment Type:</label>
             <select id="employmentType" name="employmentType" class="form-select">
                 <option value="">Select</option>
+                <option value="">EO</option>
+                <option value="">EAS</option>
+                <option value="">RT</option>
+                <option value="">CAJT</option>
+                <option value="">FAJT</option>
+                <option value="">SL</option>
+                <option value="">MK</option>
+                <option value="">Support</option>
+
                 
             </select>
         </div>
@@ -75,7 +40,12 @@
             <label for="appRequired" class="form-label">App Required:</label>
             <select id="appRequired" name="appRequired" class="form-select">
                 <option value="">Select</option>
-                
+                <option value="">CES</option>
+                <option value="">ICON</option>
+                <option value="">VPN</option>
+                <option value="">SLS</option>
+                <option value="">ScMobile</option>
+                <option value="">RBS</option>
             </select>
         </div>
         <div class="mb-3">
@@ -85,6 +55,6 @@
         <button type="submit" class="btn btn-primary w-100">Submit</button>
     </form>
     <div class="text-center mt-4">
-        <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Home</a>
+        <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
     </div>
 </div>

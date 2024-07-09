@@ -9,23 +9,26 @@
     <script>
         $(document).ready(function () {
             $('#jsUsersTable').DataTable({
-                lengthMenu: [[5, -1], [5, "All"]],
+                lengthMenu: [[10, -1], [10, 20, "All"]],
                 searching: true
             });
         });
     </script>
 }
 
+<style>
+    .center-text {
+        text-align: center;
+    }
+</style>
 
 <div class="my-3">
     <h2 style="font-family: 'Times New Roman', Times, serif;">Manage Account</h2>
 </div>
 
-
 <div class="my-3">
     <a class="btn btn-primary" asp-controller="Account" asp-action="Create">Create New Account</a>
 </div>
-
 
 @if (TempData["Message"] != null)
 {
@@ -37,36 +40,43 @@
     <table id="jsUsersTable" class="table table-striped table-bordered table-hover" style="padding-top: 20px;">
         <thead>
             <tr>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>User Role</th>
-                <th>Email Address</th>
-                <th>Last Login</th>
-                <th>Edit/Delete</th>
+                <th class="center-text">User ID</th>
+                <th class="center-text">Full Name</th>
+                <th class="center-text">User Role</th>
+                <th class="center-text">Phone Number</th>
+                <th class="center-text">Email Address</th>
+                <th class="center-text">Account Status</th>
+                <th class="center-text">Last Login</th>
+                <th class="center-text">Actions</th>
+                <th class="center-text">Edit</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.User_ID</td>
+                    <td class="center-text">@user.User_ID</td>
                     <td>@user.FullName</td>
                     <td>@user.User_Role_Name</td>
+                    <td class="center-text">@user.PhoneNumber</td>
                     <td>@user.EmailAddress</td>
-                    <td>@String.Format("{0:yyyy-MM-dd hh:mm:ss}", user.LastLogin)</td>
-                    <td>
-                        <a asp-controller="Account"
-                       asp-action="EditAccount"
-                       asp-route-id="@user.User_ID">Edit</a>
-                        |
-                        <a asp-controller="Account" asp-action="Delete"
-                       asp-route-id="@user.User_ID"
-                           onclick="return confirm('Delete User [@user.FullName]?')">
-                            Delete
+                    <td class="center-text">@(user.IsActive ? "Active" : "Inactive")</td>
+                    <td class="center-text">@String.Format("{0:yyyy-MM-dd hh:mm:ss}", user.LastLogin)</td>
+                    <td class="center-text">
+                        <a asp-controller="Account" asp-action="ToggleStatus" asp-route-id="@user.User_ID" onclick="return confirm('@(user.IsActive ? "Deactivate" : "Activate") User [@user.FullName]?')">
+                            @(user.IsActive ? "Deactivate" : "Activate")
+                        </a>
+                    </td>
+                    <td class="center-text">
+                        <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@user.User_ID" style="text-decoration:none; color:dodgerblue">
+                            <text class="bi bi-pencil"></text>
                         </a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    <div class="text-center mb-8 mt-4">
+        <a href="@Url.Action("ICTDashboard", "Home")" style="display: inline-block; margin-top: 20px;">Back to Dashboard</a>
+    </div>
 </div>

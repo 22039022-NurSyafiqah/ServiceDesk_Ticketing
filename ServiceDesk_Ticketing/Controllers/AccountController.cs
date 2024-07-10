@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ServiceDesk_Ticketing.Controllers;
 
 public class AccountController : Controller
 {
     private const string LOGIN_SQL =
-    @"SELECT * FROM SysUser su 
-        INNER JOIN UserRole ur ON su.User_Role_ID = ur.User_Role_ID 
+    @"SELECT * FROM SysUser 
         WHERE EmailAddress = '{0}'  
           AND UserPw = HASHBYTES('SHA1', '{1}')";
 
@@ -90,43 +90,15 @@ public class AccountController : Controller
         return RedirectToAction("Login", "Account");
     }
 
-    /*    [AllowAnonymous] 
-        public IActionResult Forbidden() 
-        { 
-            return View(); 
-        }*/
 
     [Authorize(Roles = "ICT Team")]
     public IActionResult Users()
     {
-        string sql = @"SELECT su.User_ID, su.FullName, ur.User_Role_Name, su.IC_num, su.PhoneNumber, su.EmailAddress, su.IsActive, su.LastLogin  
-                           FROM SysUser su 
-                           INNER JOIN UserRole ur ON su.User_Role_ID = ur.User_Role_ID";
+        string sql = @"SELECT * FROM SysUser";
         List<SysUser> list = DBUtl.GetList<SysUser>(sql);
         return View(list);
     }
 
-    /*    [Authorize(Roles = "ICT Team")] 
-        public IActionResult Delete(string id) 
-        { 
-            string delete = "DELETE FROM SysUser WHERE User_ID='{0}'"; 
-            int res = DBUtl.ExecSQL(delete, id); 
-            if (res == 1) 
-            { 
-                TempData["Message"] = "User Record Deleted Successfully!"; 
-                TempData["MsgType"] = "success"; 
-            } 
-            else 
-            {s 🦋, [9/7/2024 1:38 pm]
-Te
-
-s 🦋, [9/7/2024 1:38 pm]
-mpData["Message"] = DBUtl.DB_Message; 
-                TempData["MsgType"] = "danger"; 
-            } 
- 
-            return RedirectToAction("Users"); 
-        }*/
 
     // For Activation 
     [Authorize(Roles = "ICT Team")]
@@ -168,38 +140,32 @@ mpData["Message"] = DBUtl.DB_Message;
 
     // For Drop-Down list (User Role) 
     [Authorize(Roles = "ICT Team")]
+    [HttpGet]
     public IActionResult Create()
     {
-        List<SelectListItem> roleList = DBUtl.GetList<SelectListItem>(
-            @"SELECT ur.User_Role_ID AS Value, ur.User_Role_Name AS Text  
-              FROM UserRole ur");
-
-        ViewData["role"] = roleList;
-        return View();
+        return View("Create");
     }
 
-    /*    [Authorize(Roles = "ICT Team")] 
-    */
+    [Authorize(Roles = "ICT Team")]
     [HttpPost]
     public IActionResult Create(SysUser user)
     {
         if (!ModelState.IsValid)
         {
             return View("Create", user);
+
         }
         else
         {
-            // Ensure Status is set to true 
+            // Ensure Status is set to true
             user.IsActive = true;
 
-            string insert =
-                @"INSERT INTO SysUser(User_Role_ID, FullName, IC_num, EmailAddress, IsActive, UserPw) 
-                SELECT ur.User_Role_ID, '{1}', '{2}', '{3}', '{4}', HASHBYTES('SHA1', '{5}') 
-                FROM UserRole ur 
-                INNER JOIN UserRole ur ON su.User_Role_ID = ur.User_Role_ID 
-                WHERE ur.User_Role_Name = '{0}'";
 
-            if (DBUtl.ExecSQL(insert, user.User_Role_ID, user.FullName, user.IC_num, user.EmailAddress, user.IsActive, user.UserPw) == 1)
+            string insert =
+                @"INSERT INTO SysUser (User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, UserPw) 
+              VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', HASHBYTES('SHA1', '{5}'))";
+
+            if (DBUtl.ExecSQL(insert, user.User_Role_Name, user.FullName, user.IC_num, user.PhoneNumber, user.EmailAddress, user.UserPw) == 1)
             {
 
                 ViewData["Message"] = "User successfully registered!";
@@ -215,22 +181,25 @@ mpData["Message"] = DBUtl.DB_Message;
     }
 
     [HttpGet]
-    public IActionResult EditAccount(int id)
+    public IActionResult EditAccount(string id)
     {
-        string select = string.Format("SELECT * FROM SysUser WHERE User_ID = '{0}'", id);
-        List<SysUser> list = DBUtl.GetList<SysUser>(select);
+        string select = @"SELECT User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, IsActive, UserPw, LastLogin FROM SysUser WHERE SysUser.User_ID = '{0}'";
+
+        List<SysUser> list = DBUtl.GetList<SysUser>(select, id);
+
 
         if (list.Count == 1)
         {
-            return View(list[0]); // Pass SysUser model to the view 
+            return View(list[0]);
         }
         else
         {
-            TempData["Message"] = "Account not found!";
+            TempData["Message"] = "Account not found";
             TempData["MsgType"] = "warning";
             return RedirectToAction("Users");
         }
     }
+
 
 
     [HttpPost]
@@ -238,27 +207,37 @@ mpData["Message"] = DBUtl.DB_Message;
     {
         if (!ModelState.IsValid)
         {
-            ViewData["Message"] = "Invalid Input";
-            ViewData["MsgType"] = "warning";
-            return View("EditAccount"); // Return the view with the model to display errors 
+            string errors = "";
+            foreach (var state in ModelState.Values)
+            {
+                foreach (var error in state.Errors)
+                {
+                    errors += error.ErrorMessage + " ";
+                }
+            }
+            TempData["Message"] = errors;
+            TempData["MsgType"] = "danger";
+            return View("EditAccount", usr);
+        }
+
+        string update = "UPDATE SysUser SET User_Role_Name = @1, PhoneNumber = @2 WHERE User_ID = @0";
+        int result = DBUtl.ExecSQL(update, usr.User_ID, usr.User_Role_Name, usr.PhoneNumber);
+
+        if (result == 1)
+        {
+            TempData["Message"] = "Profile updated successfully!";
+            TempData["MsgType"] = "success";
         }
         else
         {
-            string update = @"UPDATE SysUser SET PhoneNumber='{1}' WHERE User_ID = '{0}'";
-            int result = DBUtl.ExecSQL(update, usr.User_ID, usr.PhoneNumber); // Corrected to include User_ID 
-            if (result == 1)
-            {
-                TempData["Message"] = "Profile Updated Successfully!";
-                TempData["MsgType"] = "success";
-            }
-            else
-            {
-                TempData["Message"] = DBUtl.DB_Message;
-                TempData["MsgType"] = "danger";
-            }
-            return RedirectToAction("Users");
+            TempData["Message"] = DBUtl.DB_Message;
+            TempData["MsgType"] = "danger";
         }
+
+        return RedirectToAction("Users");
     }
+
+
 
 
     private static bool AuthenticateUser(string e, string pw, out ClaimsPrincipal principal)

@@ -1,0 +1,100 @@
+﻿@model SysUser
+@{
+    ViewData["Title"] = "Add Account";
+}
+
+<div class="mt-4">
+    <a href="@Url.Action("Users", "Account")" class="btn btn-secondary btn-lg">Back</a>
+</div>
+
+<h2 class="text-center">Add New Account</h2>
+
+<div>
+    <form asp-controller="Account" asp-action="Create" method="post">
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">User Role</label><br />
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="Staff" id="Staff">
+                <label class="form-check-label" for="Staff">
+                    Staff
+                </label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="School Leader" id="SchoolLeader">
+                <label class="form-check-label" for="SchoolLeader">
+                    School Leader
+                </label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="ICT Team" id="ICT_Team">
+                <label class="form-check-label" for="ICT_Team">
+                    ICT Team
+                </label>
+            </div>
+
+            <br />
+            <span asp-validation-for="User_Role_Name" class="text-danger"></span>
+        </div>
+
+
+        <!-- Full Name -->
+        <div class="col-md-4 mb-3 form-floating">
+            <input asp-for="FullName" class="form-control" placeholder="" />
+            <label asp-for="FullName">Full Name</label>
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+
+        <!-- NRIC Number -->
+        <div class="col-md-4 mb-3 form-floating">
+            <input asp-for="IC_num" class="form-control" placeholder="" />
+            <label asp-for="IC_num">NRIC Number</label>
+            <span asp-validation-for="IC_num" class="text-danger"></span>
+        </div>
+        
+        <!-- Phone Number -->
+        <div class="col-md-4 mb-3 form-floating">
+            <input asp-for="PhoneNumber" class="form-control" placeholder="" />
+            <label asp-for="PhoneNumber">Phone Number</label>
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <!-- Email Address -->
+        <div class="col-md-4 mb-3 form-floating">
+            <input asp-for="EmailAddress" class="form-control" placeholder="" />
+            <label asp-for="EmailAddress">Email Address</label>
+            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="col-md-4 mb-3 form-floating">
+            <input asp-for="UserPw" type="password" class="form-control" placeholder="" />
+            <label asp-for="UserPw">Password</label>
+            <span asp-validation-for="UserPw" class="text-danger"></span>
+        </div>
+
+        <div class="col-auto mb-3">
+            <button class="btn btn-primary" type="submit">Register</button>
+        </div>
+
+        @if (ViewData["Message"] != null)
+        {
+            <div class="form-group">
+                <div class="col-6">
+                    <div class="alert alert-@ViewData["MsgType"]">
+                        <b>Message: </b>@ViewData["Message"]<br />
+                        @if (!String.IsNullOrEmpty(ViewData["ExecSQL"]?.ToString()))
+                        {
+                            <b>SQL: </b>
+                            @ViewData["ExecSQL"]?.ToString()
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </form>
+</div>

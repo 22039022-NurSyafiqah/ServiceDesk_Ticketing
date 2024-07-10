@@ -1,0 +1,106 @@
+﻿@using System.Security.Claims
+@model SysUser
+
+<div class="mt-4">
+    <a href="@Url.Action("Users", "Account")" class="btn btn-secondary btn-lg">Back</a>
+</div>
+
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card" style="max-width: 600px; width: 100%;">
+        <div class="card-header text-center">
+            <h2>Edit User Account</h2>
+        </div>
+
+        <div class="card-body">
+            <form asp-controller="Account"
+                  asp-action="EditAccount"
+                  method="post">
+
+                <input asp-for="User_ID" hidden />
+
+                <!-- Full Name (Readonly) -->
+                <div class="mb-3 form-floating">
+                    <input asp-for="FullName" class="form-control" placeholder="" readonly />
+                    <label asp-for="FullName">Full Name:  </label>
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+
+@*                 <p class="card-text">You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
+ *@
+                <!-- NRIC Number (Readonly) -->
+                <div class="mb-3 form-floating">
+                    <input asp-for="IC_num" class="form-control" placeholder="" readonly />
+                    <label asp-for="IC_num">NRIC Number:  </label>
+                    <span asp-validation-for="IC_num" class="text-danger"></span>
+                </div>
+
+                <!-- Email Address (Readonly) -->
+                <div class="mb-3 form-floating">
+                    <input asp-for="EmailAddress" class="form-control" placeholder="" readonly />
+                    <label asp-for="EmailAddress">Email Address:  </label>
+                    <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                </div>
+
+                <!-- User Role (Editable) -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">User Role</label><br />
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="Staff" id="Staff">
+                        <label class="form-check-label" for="Staff">
+                            Staff
+                        </label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="School Leader" id="SchoolLeader">
+                        <label class="form-check-label" for="SchoolLeader">
+                            School Leader
+                        </label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="User_Role_Name" value="ICT Team" id="ICT_Team">
+                        <label class="form-check-label" for="ICT_Team">
+                            ICT Team
+                        </label>
+                    </div>
+
+                    <br />
+                    <span asp-validation-for="User_Role_Name" class="text-danger"></span>
+                </div>
+
+                <!-- Phone Number (Editable) -->
+                <div class="mb-3 form-floating">
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="" />
+                    <label asp-for="PhoneNumber">Phone Number: </label>
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-auto mb-3">
+                    <button class="btn btn-primary" type="submit">Update</button>
+                </div>
+
+                @if (ViewData["Message"] != null)
+                {
+                    <div class="form-group row">
+                        <div class="col-6">
+                            <div class="alert alert-@ViewData["MsgType"]">
+                                <b>Message: </b>@ViewData["Message"]<br />
+
+                                @if (ViewData["ExecSQL"] != null && ViewData["ExecSQL"] is int)
+                                {
+                                    <b>ExecSQL: </b>
+                                    @ViewData["ExecSQL"]
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </form>
+        </div>
+    </div>
+</div>

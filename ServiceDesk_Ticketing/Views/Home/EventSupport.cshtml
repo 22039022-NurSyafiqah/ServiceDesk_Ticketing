@@ -1,209 +1,326 @@
-﻿@{
+﻿@model ServiceDesk_Ticketing.Models.Home
+
+@{
     ViewData["Title"] = "IT Service/Support Request Session";
 }
-<div class="container mt-5">
-    <div class="text-center mb-4">
-        <h3>IT Service/Support Request Session</h3>
-    </div>
-    <div class="text-center mb-4">
-        <h4>Event/ICT Support</h4>
-    </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
 
-    <div class="mb-3">
-        <label class="form-label">Support Type:</label>
-        <div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="supportType" id="supportTypeEvent" value="Event" onclick="showForm('eventForm')">
-                <label class="form-check-label" for="supportTypeEvent">Event (Media/AV)</label>
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-check-label {
+            margin-left: 5px;
+        }
+
+        .btn-primary {
+            background-color: #ff6f61;
+            border: none;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background-color: #ff5a4c;
+            }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
+        .mt-5 {
+            margin-top: 40px;
+        }
+
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+
+        .mb-4 {
+            margin-bottom: 20px;
+        }
+
+        .form-check {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .form-check-input {
+            margin-right: 5px;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .text-danger {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h3>IT Service/Support Request Session</h3>
+        </div>
+        <div class="text-center mb-4">
+            <h4>Event/ICT Support</h4>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Support Type:</label>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="SupportType" value="Event" onclick="showForm('eventForm')">
+                    <label class="form-check-label" for="supportTypeEvent">Event (Media/AV)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="SupportType" value="ICT" onclick="showForm('ictForm')">
+                    <label class="form-check-label" for="supportTypeICT">ICT</label>
+                </div>
             </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="supportType" id="supportTypeICT" value="ICT" onclick="showForm('ictForm')">
-                <label class="form-check-label" for="supportTypeICT">ICT</label>
-            </div>
+        </div>
+
+        <!-- Event/Media AV Form -->
+        <div id="eventForm" style="display:none;">
+            <form asp-action="SubmitEventSupport" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Event Support Type:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="eventSupportType1" name="EventSupportType" value="Photography">
+                            <label class="form-check-label" for="eventSupportType1">Photography</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="eventSupportType2" name="EventSupportType" value="Videography">
+                            <label class="form-check-label" for="eventSupportType2">Videography</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="eventSupportType3" name="EventSupportType" value="Hall AV Support">
+                            <label class="form-check-label" for="eventSupportType3">Hall AV Support</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="eventSupportType4" name="EventSupportType" value="Live Stream">
+                            <label class="form-check-label" for="eventSupportType4">Live Stream</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="eventSupportType5" name="EventSupportType" value="Excursion">
+                            <label class="form-check-label" for="eventSupportType5">Excursion</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="PhotoDescription" class="form-label">What kind of photo you want to capture? (closeup/long/short/wide shot). Please Describe:</label>
+                    <textarea asp-for="PhotoDescription" class="form-control" placeholder="Type here..."></textarea>
+                    <span asp-validation-for="PhotoDescription" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NameOfEvent" class="form-label">Name of Event:</label>
+                    <input asp-for="NameOfEvent" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="NameOfEvent" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DateOfEvent" class="form-label">Date of Event:</label>
+                    <input asp-for="DateOfEvent" class="form-control">
+                    <span asp-validation-for="DateOfEvent" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TimeOfEvent" class="form-label">Time of Event:</label>
+                    <input asp-for="TimeOfEvent" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="TimeOfEvent" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="EventIncharge" class="form-label">Event Incharge:</label>
+                    <input asp-for="EventIncharge" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="EventIncharge" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Any Rehearsal?</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="Yes">
+                            <label class="form-check-label" for="anyRehearsalYes">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="No">
+                            <label class="form-check-label" for="anyRehearsalNo">No</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="AnyRehearsal" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DateOfRehearsal" class="form-label">Date of Rehearsal:</label>
+                    <input asp-for="DateOfRehearsal" class="form-control">
+                    <span asp-validation-for="DateOfRehearsal" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TimeOfRehearsal" class="form-label">Time of Rehearsal:</label>
+                    <input asp-for="TimeOfRehearsal" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="TimeOfRehearsal" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
+
+        <!-- ICT Form -->
+        <div id="ictForm" style="display:none;">
+            <form asp-action="SubmitICTSupport" method="post">
+                <div class="mb-3">
+                    <label class="form-label">ICT Event Type:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="ictEventType1" name="ICTEventType" value="School Based">
+                            <label class="form-check-label" for="ictEventType1">School Based</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="ictEventType2" name="ICTEventType" value="National">
+                            <label class="form-check-label" for="ictEventType2">National</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Primary Level:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="primaryLevel1" name="PrimaryLevel" value="1">
+                            <label class="form-check-label" for="primaryLevel1">1</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="primaryLevel2" name="PrimaryLevel" value="2">
+                            <label class="form-check-label" for="primaryLevel2">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="primaryLevel3" name="PrimaryLevel" value="3">
+                            <label class="form-check-label" for="primaryLevel3">3</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="primaryLevel4" name="PrimaryLevel" value="4">
+                            <label class="form-check-label" for="primaryLevel4">4</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="primaryLevel5" name="PrimaryLevel" value="5">
+                            <label class="form-check-label" for="primaryLevel5">5</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Logistic Request:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="logisticRequest1" name="LogisticRequest" value="iPad">
+                            <label class="form-check-label" for="logisticRequest1">iPad</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="logisticRequest2" name="LogisticRequest" value="Laptop">
+                            <label class="form-check-label" for="logisticRequest2">Laptop</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="logisticRequest3" name="LogisticRequest" value="Speaker">
+                            <label class="form-check-label" for="logisticRequest3">Speaker</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="logisticRequest4" name="LogisticRequest" value="Portable Mic">
+                            <label class="form-check-label" for="logisticRequest4">Portable Mic</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Location" class="form-label">Location:</label>
+                    <input asp-for="Location" class="form-control" placeholder="Please write the classroom involved...">
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DateOfEvent" class="form-label">Date of Event:</label>
+                    <input asp-for="DateOfEvent" class="form-control">
+                    <span asp-validation-for="DateOfEvent" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="TimeOfEvent" class="form-label">Time of Event:</label>
+                    <input asp-for="TimeOfEvent" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="TimeOfEvent" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="EventIncharge" class="form-label">Event Incharge:</label>
+                    <input asp-for="EventIncharge" class="form-control" placeholder="Type here...">
+                    <span asp-validation-for="EventIncharge" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Equipment Needed:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="equipmentNeeded1" name="EquipmentNeeded" value="Apple Pencil">
+                            <label class="form-check-label" for="equipmentNeeded1">Apple Pencil</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="equipmentNeeded2" name="EquipmentNeeded" value="Mouse">
+                            <label class="form-check-label" for="equipmentNeeded2">Mouse</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="equipmentNeeded3" name="EquipmentNeeded" value="Charger">
+                            <label class="form-check-label" for="equipmentNeeded3">Charger</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
         </div>
     </div>
 
-    <!-- Event/Media AV Form -->
-    <div id="eventForm" style="display:none;">
-        <form>
-            <div class="mb-3">
-                <label class="form-label">Event Support Type:</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="eventSupportType1" name="eventSupportType" value="Photography">
-                        <label class="form-check-label" for="eventSupportType1">Photography</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="eventSupportType2" name="eventSupportType" value="Videography">
-                        <label class="form-check-label" for="eventSupportType2">Videography</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="eventSupportType3" name="eventSupportType" value="Hall AV Support">
-                        <label class="form-check-label" for="eventSupportType3">Hall AV Support</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="eventSupportType4" name="eventSupportType" value="Live Stream">
-                        <label class="form-check-label" for="eventSupportType4">Live Stream</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="eventSupportType5" name="eventSupportType" value="Excursion">
-                        <label class="form-check-label" for="eventSupportType5">Excursion</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="photoDescription" class="form-label">What kind of photo you want to capture? (closeup/long/short/wide shot). Please Describe:</label>
-                <textarea id="photoDescription" name="photoDescription" class="form-control" placeholder="Type here..."></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="nameOfEvent" class="form-label">Name of Event:</label>
-                <input type="text" id="nameOfEvent" name="nameOfEvent" class="form-control" placeholder="Type here...">
-            </div>
-            <div class="mb-3">
-                <label for="dateOfEvent" class="form-label">Date of Event:</label>
-                <input type="date" id="dateOfEvent" name="dateOfEvent" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="timeOfEvent" class="form-label">Time of Event:</label>
-                <input type="text" id="timeOfEvent" name="timeOfEvent" class="form-control" placeholder="Type here...">
-            </div>
-            <div class="mb-3">
-                <label for="eventIncharge" class="form-label">Event Incharge:</label>
-                <input type="text" id="eventIncharge" name="eventIncharge" class="form-control" placeholder="Type here...">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Any Rehearsal?</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="anyRehearsal" id="anyRehearsalYes" value="Yes">
-                        <label class="form-check-label" for="anyRehearsalYes">Yes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="anyRehearsal" id="anyRehearsalNo" value="No">
-                        <label class="form-check-label" for="anyRehearsalNo">No</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="dateOfRehearsal" class="form-label">Date of Rehearsal:</label>
-                <input type="date" id="dateOfRehearsal" name="dateOfRehearsal" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="timeOfRehearsal" class="form-label">Time of Rehearsal:</label>
-                <input type="text" id="timeOfRehearsal" name="timeOfRehearsal" class="form-control" placeholder="Type here...">
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Submit</button>
-        </form>
-    </div>
-
-    <!-- ICT Form -->
-    <div id="ictForm" style="display:none;">
-        <form>
-            <div class="mb-3">
-                <label class="form-label">ICT Event Type:</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="ictEventType1" name="ictEventType" value="School Based">
-                        <label class="form-check-label" for="ictEventType1">School Based</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="ictEventType2" name="ictEventType" value="National">
-                        <label class="form-check-label" for="ictEventType2">National</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Primary Level:</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="primaryLevel1" name="primaryLevel" value="1">
-                        <label class="form-check-label" for="primaryLevel1">1</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="primaryLevel2" name="primaryLevel" value="2">
-                        <label class="form-check-label" for="primaryLevel2">2</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="primaryLevel3" name="primaryLevel" value="3">
-                        <label class="form-check-label" for="primaryLevel3">3</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="primaryLevel4" name="primaryLevel" value="4">
-                        <label class="form-check-label" for="primaryLevel4">4</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="primaryLevel5" name="primaryLevel" value="5">
-                        <label class="form-check-label" for="primaryLevel5">5</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Logistic Request:</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="logisticRequest1" name="logisticRequest" value="iPad">
-                        <label class="form-check-label" for="logisticRequest1">iPad</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="logisticRequest2" name="logisticRequest" value="Laptop">
-                        <label class="form-check-label" for="logisticRequest2">Laptop</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="logisticRequest3" name="logisticRequest" value="Speaker">
-                        <label class="form-check-label" for="logisticRequest3">Speaker</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="logisticRequest4" name="logisticRequest" value="Portable Mic">
-                        <label class="form-check-label" for="logisticRequest4">Portable Mic</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="location" class="form-label">Location:</label>
-                <input type="text" id="location" name="location" class="form-control" placeholder="Please write the classroom involved...">
-            </div>
-            <div class="mb-3">
-                <label for="dateOfEvent" class="form-label">Date of Event:</label>
-                <input type="date" id="dateOfEvent" name="dateOfEvent" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="timeOfEvent" class="form-label">Time of Event:</label>
-                <input type="text" id="timeOfEvent" name="timeOfEvent" class="form-control" placeholder="Type here...">
-            </div>
-            <div class="mb-3">
-                <label for="eventIncharge" class="form-label">Event Incharge:</label>
-                <input type="text" id="eventIncharge" name="eventIncharge" class="form-control" placeholder="Type here...">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Equipment Needed:</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="equipmentNeeded1" name="equipmentNeeded" value="Apple Pencil">
-                        <label class="form-check-label" for="equipmentNeeded1">Apple Pencil</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="equipmentNeeded2" name="equipmentNeeded" value="Mouse">
-                        <label class="form-check-label" for="equipmentNeeded2">Mouse</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="equipmentNeeded3" name="equipmentNeeded" value="Charger">
-                        <label class="form-check-label" for="equipmentNeeded3">Charger</label>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Submit</button>
-        </form>
-    </div>
-
-    <div class="text-center mt-4">
-        <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
-    </div>
-</div>
-
-<script>
-    function showForm(formId) {
-        document.getElementById('eventForm').style.display = 'none';
-        document.getElementById('ictForm').style.display = 'none';
-        document.getElementById(formId).style.display = 'block';
-    }
-</script>
+    <script>
+        function showForm(formId) {
+            document.getElementById('eventForm').style.display = 'none';
+            document.getElementById('ictForm').style.display = 'none';
+            document.getElementById(formId).style.display = 'block';
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

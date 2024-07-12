@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RP.SOI.DotNet.Utils;
 using ServiceDesk_Ticketing.Models;
 using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace ServiceDesk_Ticketing.Controllers
 {
@@ -14,6 +16,7 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             _logger = logger;
         }
+
 
         public IActionResult Index()
         {
@@ -30,12 +33,9 @@ namespace ServiceDesk_Ticketing.Controllers
             ViewData["Message"] = "You clicked Privacy!";
             return View();
         }
-        public IActionResult FaultReport()
-        {
-            return View();
-        }
-       
-     
+
+
+
         public IActionResult ClassroomCartParkingBay()
         {
             return View();
@@ -60,7 +60,7 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
-        
+
         public IActionResult RequestForEquipment()
         {
             return View();
@@ -137,6 +137,10 @@ namespace ServiceDesk_Ticketing.Controllers
             }
         }
 
+
+      
+    
+    
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -1,23 +1,116 @@
-﻿@{
-    ViewData["Title"] = "FacebookPost";
+﻿@model ServiceDesk_Ticketing.Models.Home
+
+@{
+    ViewData["Title"] = "FacebookPostSession";
 }
-<!-- Facebook Post Session Section -->
-<div class="container mt-5">
-    <div class="text-center mb-4">
-        <h3>Facebook Post Session</h3>
-    </div>
-    <form>
-        <div class="mb-3">
-            <label for="photos" class="form-label">Select your pictures (max 15):</label>
-            <input type="file" id="photos" name="photos" class="form-control" multiple>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-check-label {
+            margin-left: 5px;
+        }
+
+        .btn-primary {
+            background-color: #ff6f61;
+            border: none;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background-color: #ff5a4c;
+            }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
+        .mt-5 {
+            margin-top: 40px;
+        }
+
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+
+        .mb-4 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h3>Facebook Post Session</h3>
         </div>
-        <div class="mb-3">
-            <label for="caption" class="form-label">Caption for each photo:</label>
-            <input type="text" id="caption" name="caption" class="form-control" placeholder="Type here...">
+        <form asp-action="Submit" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label asp-for="Photos" class="form-label">Select your pictures (max 15):</label>
+                <input asp-for="Photos" class="form-control" type="file" multiple>
+                <span asp-validation-for="Photos" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Caption" class="form-label">Caption for each photo:</label>
+                <input asp-for="Caption" class="form-control" placeholder="Type here...">
+                <span asp-validation-for="Caption" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+        </form>
+        <div class="text-center mt-4">
+            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Submit</button>
-    </form>
-    <div class="text-center mt-4">
-        <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
     </div>
-</div>
+
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

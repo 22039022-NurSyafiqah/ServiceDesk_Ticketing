@@ -85,12 +85,12 @@
         <div class="text-center mb-4">
             <h3>Fault Reporting Session: Classroom/Cart Parking Bay</h3>
         </div>
-        <form asp-action="SubmitClassroomCartParkingBay" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
+        <form asp-action="SubmitFaultReport" method="post" enctype="multipart/form-data">
+       @*    <div class="mb-3">
                 <label asp-for="Description" class="form-label">Description of Issue:</label>
                 <textarea asp-for="Description" class="form-control" placeholder="Type here..." rows="5"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="mb-3">
                 <label asp-for="DateOfIssue" class="form-label">Date of Issue:</label>
                 <input asp-for="DateOfIssue" class="form-control">
@@ -110,8 +110,8 @@
                 <label asp-for="Photo" class="form-label">Any Photo URL:</label>
                 <input asp-for="Photo" type="file" class="form-control mb-2">
                 <span asp-validation-for="Photo" class="text-danger"></span>
-                
-            </div>
+              </div>
+         @*   </div>
             <div class="mb-3">
                 <label class="form-label">Equipment Type:</label>
                 <div>
@@ -137,7 +137,7 @@
                     </div>
                 </div>
                 <span asp-validation-for="EquipmentType" class="text-danger"></span>
-            </div>
+            </div> *@
             <button type="submit" class="btn btn-primary w-100">Submit</button>
         </form>
         <div class="text-center mt-4">

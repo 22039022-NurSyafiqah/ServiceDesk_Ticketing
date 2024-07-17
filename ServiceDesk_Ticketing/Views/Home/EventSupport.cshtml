@@ -127,7 +127,7 @@
 
         <!-- Event/Media AV Form -->
         <div id="eventForm" style="display:none;">
-            <form asp-action="SubmitEventSupport" method="post">
+            <form asp-action="SubmitEventSupport" asp-controller="Home" method="post">
                 <div class="mb-3">
                     <label class="form-label">Event Support Type:</label>
                     <div>
@@ -208,7 +208,7 @@
 
         <!-- ICT Form -->
         <div id="ictForm" style="display:none;">
-            <form asp-action="SubmitICTSupport" method="post">
+            <form asp-action="SubmitICTSupport" asp-controller="Home" method="post">
                 <div class="mb-3">
                     <label class="form-label">ICT Event Type:</label>
                     <div>

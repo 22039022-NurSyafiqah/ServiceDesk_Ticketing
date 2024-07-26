@@ -11,81 +11,314 @@
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/css/dashboard.css" /> <!-- Reference your stylesheet -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRn5g5z1am6z9/smIdow6/67O2M5p0/NSFFWfuvl+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .left-container {
-            /* display: flex; */
-            justify-content: left;
-            padding-top: 40px;
-            padding-left: 50px;
+        .home-container {
+            text-align: center;
+            margin-top: 30px;
         }
 
-        .dashboard-container {
-            padding: 20px;
+            .home-container h1 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+
+            .home-container button {
+                margin: 10px;
+                padding: 15px 30px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        p {
+            font-family: Verdana;
+            text-align: left;
         }
 
         .card {
-            border: 1px solid #ccc;
-            border-radius: 10px;
+            margin: 10px;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .card-header {
-            font-size: 20px;
-            margin-bottom: 10px;
+            .card h5, .card h6, .card p {
+                text-align: center;
+            }
+
+            .card h5 {
+                font-size: 1.5em;
+            }
+
+            .card h6 {
+                font-size: 1.2em;
+            }
+
+            .card p {
+                font-size: 1em;
+            }
+
+        #chart-container {
+            margin-top: 10px;
         }
 
-        .card-content {
-            font-size: 16px;
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px; /* Adjust as needed */
+            margin-bottom: 30px; /* Space between charts if needed */
         }
 
+        .chart {
+            height: 100%;
+            width: 100%;
+        }
     </style>
 </head>
+
 <body>
-    <div class="left-container">
-        <div class="card border-primary" style="max-width: 25rem;">
-            <div class="card-header"> Welcome, @User.Identity!.Name!</div>
-            <div class="card-body text-primary">
-                <p class="card-text">You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
-            </div>
-        </div>
-    </div>
 
-    <div class="dashboard-container">
-
-        <h1>Dashboard</h1>
-
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-chart-line"></i> Overview
-            </div>
-            <div class="card-content">
-                <p>Welcome to the dashboard! Here you can see an overview of the system.</p>
+    <div class="home-container">
+        <div class="left-container">
+            <div class="card border-primary" style="max-width: 25rem;">
+                <div class="card-header"> Welcome, @User.Identity!.Name!</div>
+                <div class="card-body text-primary">
+                    <p class="card-text">You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-tasks"></i> Tasks
+        <button class="btn-primary" onclick="location.href='@Url.Action("CreateTicket", "TicketRequest")'">Create Tickets</button>
+        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
+        <!--<button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Search Tickets</button>-->
+        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Generate Report</button>
+        <button class="btn-primary" onclick="location.href='@Url.Action("ListTickets", "TicketRequest")'">View Tickets</button>
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Total Tickets</h6>
+                            <p class="card-text">
+                                <span id="totalTicketsCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Logged/Active Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Logged/Active Tickets</h6>
+                            <p class="card-text">
+                                <span id="loggedActiveTicketCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Assigned Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Assigned Tickets</h6>
+                            <p class="card-text">
+                                <span id="assignedTicketCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Pending Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Pending Tickets</h6>
+                            <p class="card-text">
+                                <span id="pendingTicketCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Resolved Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Resolved Tickets</h6>
+                            <p class="card-text">
+                                <span id="resolvedTicketCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Closed Tickets</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Closed Tickets</h6>
+                            <p class="card-text">
+                                <span id="closedTicketCount">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-content">
-                <ul>
-                    <li>Task 1</li>
-                    <li>Task 2</li>
-                    <li>Task 3</li>
-                </ul>
+            <div class="row">
+                <div class="col-md-6 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Assigned v. Total Tickets </h5>
+                            <div class="chart-container">
+                                <canvas id="comparisonChart" class="chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Ticket Status</h5>
+                            <div class="chart-container">
+                                <canvas id="statusChart" class="chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mt-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Daily Tickets Trend</h5>
+                            <div class="chart-container">
+                                <canvas id="dailyTrendChart" class="chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-bell"></i> Notifications
-            </div>
-            <div class="card-content">
-                <p>No new notifications.</p>
-            </div>
-        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const fetchData = async (url) => {
+                    try {
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        console.log(`Response from ${url}:`, data); // Log the response
+                        return data.count;
+                    } catch (error) {
+                        console.error(`Error fetching data from ${url}:`, error);
+                        return 0;
+                    }
+                };
+
+
+                const renderChart = (chartId, labels, data, backgroundColor, borderColor, type = 'doughnut') => {
+                    const ctx = document.getElementById(chartId).getContext('2d');
+                    new Chart(ctx, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Ticket Counts',
+                                data: data,
+                                backgroundColor: backgroundColor,
+                                borderColor: borderColor,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            return `${label}: ${value}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+
+                const updateCounts = async () => {
+                    const totalTicketsCount = await fetchData('@Url.Action("GetTotalTicketsCount", "Home")');
+                    const loggedActiveTicketCount = await fetchData('@Url.Action("GetStatusCount", "Home", new { status = "Logged/Active" })');
+                    const assignedTicketCount = await fetchData('@Url.Action("GetStatusCount", "Home", new { status = "Assigned" })');
+                    const pendingTicketCount = await fetchData('@Url.Action("GetStatusCount", "Home", new { status = "Pending" })');
+                    const resolvedTicketCount = await fetchData('@Url.Action("GetStatusCount", "Home", new { status = "Resolved" })');
+                    const closedTicketCount = await fetchData('@Url.Action("GetStatusCount", "Home", new { status = "Closed" })');
+
+                    document.getElementById("totalTicketsCount").innerText = totalTicketsCount;
+                    document.getElementById("loggedActiveTicketCount").innerText = loggedActiveTicketCount;
+                    document.getElementById("assignedTicketCount").innerText = assignedTicketCount;
+                    document.getElementById("pendingTicketCount").innerText = pendingTicketCount;
+                    document.getElementById("resolvedTicketCount").innerText = resolvedTicketCount;
+                    document.getElementById("closedTicketCount").innerText = closedTicketCount;
+
+                    // Colors
+                    const statusColors = [
+                        'rgba(75, 192, 192, 0.2)', // Light blue
+                        'rgba(255, 99, 132, 0.2)', // Light red
+                        'rgba(54, 162, 235, 0.2)', // Light blue
+                        'rgba(255, 206, 86, 0.2)', // Light yellow
+                        'rgba(153, 102, 255, 0.2)',// Light purple
+                        'rgba(255, 159, 64, 0.2)'  // Light orange
+                    ];
+                    const statusBorderColors = [
+                        'rgba(75, 192, 192, 1)',   // Dark blue
+                        'rgba(255, 99, 132, 1)',   // Dark red
+                        'rgba(54, 162, 235, 1)',   // Dark blue
+                        'rgba(255, 206, 86, 1)',   // Dark yellow
+                        'rgba(153, 102, 255, 1)',  // Dark purple
+                        'rgba(255, 159, 64, 1)'    // Dark orange
+                    ];
+
+                    // Render comparison chart
+                    renderChart('comparisonChart', ['Assigned Tickets', 'Total Tickets'],
+                        [assignedTicketCount, totalTicketsCount - assignedTicketCount],
+                        [statusColors[1], statusColors[2]], [statusBorderColors[1], statusBorderColors[2]]);
+
+                    // Render status chart
+                    renderChart('statusChart', ['Total Tickets', 'Logged/Active', 'Assigned', 'Pending', 'Resolved', 'Closed'],
+                        [totalTicketsCount, loggedActiveTicketCount, assignedTicketCount, pendingTicketCount, resolvedTicketCount, closedTicketCount],
+                        statusColors, statusBorderColors);
+
+                    // Render daily trend chart
+                    const dailyTrendData = await fetchData('@Url.Action("GetDailyTrendData", "Home")');
+                    const dailyLabels = dailyTrendData.map(data => data.date);
+                    const dailyCounts = dailyTrendData.map(data => data.count);
+
+                    renderChart('dailyTrendChart', dailyLabels, dailyCounts, 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)', 'line');
+                };
+
+                updateCounts();
+            });
+        </script>
+
     </div>
 </body>
 </html>

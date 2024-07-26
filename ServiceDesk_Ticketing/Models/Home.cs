@@ -96,14 +96,14 @@ namespace ServiceDesk_Ticketing.Models
 
         // New fields for Website Update Session
         [Required(ErrorMessage = "Select a document to upload")]
-        public List<IFormFile> Document { get; set; } = new List<IFormFile>();
+        public List<IFormFile> UploadDocument { get; set; } = new List<IFormFile>();
 
         [Required(ErrorMessage = "Enter the URL links to update")]
         [StringLength(500, ErrorMessage = "Maximum is 500 characters")]
         public string UrlLinks { get; set; } = null!;
 
         [Required(ErrorMessage = "Select any attachments to upload")]
-        public IFormFile? Attachment { get; set; }
+        public IFormFile? UploadAttachment { get; set; }
 
         [Required(ErrorMessage = "Enter the date of the update")]
         [DataType(DataType.Date)]

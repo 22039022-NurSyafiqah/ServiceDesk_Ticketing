@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Social Media\**" />
+    <Content Remove="Views\Social Media\**" />
+    <EmbeddedResource Remove="Views\Social Media\**" />
+    <None Remove="Views\Social Media\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\images\schoollogo.jpg" />
   </ItemGroup>
 
@@ -62,6 +69,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 

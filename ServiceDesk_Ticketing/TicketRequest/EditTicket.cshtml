@@ -1,0 +1,218 @@
+﻿@model TicketRequest
+
+<div class="mt-4">
+    <a href="@Url.Action("ListTickets", "TicketRequest")" class="btn btn-secondary btn-lg">Back</a>
+</div>
+
+@{
+    ViewData["Title"] = "Edit Ticket";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn-primary {
+            background-color: #ff6f61;
+            border: none;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background-color: #ff5a4c;
+            }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
+        .mt-5 {
+            margin-top: 40px;
+        }
+
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+
+        .mb-4 {
+            margin-bottom: 20px;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .status-box {
+            background-color: #e9f7f9;
+            border: 1px solid #b3e0e5;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            /*             font-weight: bold;
+         */ color: #007bff;
+            /*  #007bff; */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h3>IT Service/Support Request Session</h3>
+        </div>
+
+        <div class="text-center mb-4">
+            <h4>Edit Ticket</h4>
+        </div>
+
+        <!-- Status Box -->
+        <div class="status-box">
+            Current Status: <span><b>@Model.TicketStatus_Type</b></span><br>
+            Current Ticket Assigned To: <span><b>@Model.FullName</b></span><br>
+            Priority: <span style="color:red;"><b>@Model.Priority_Type</b></span>
+        </div>
+
+
+        <form asp-action="EditTicket" asp-controller="TicketRequest" method="post">
+            <div class="row mb-3">
+                <!-- Ticket Status Type (Drop down List) -->
+                <div class="col-4">
+                    <div class="form-floating">
+                        <select class="form-select" asp-for="TicketStatus_ID">
+                            @foreach (var status in (SelectList)ViewData["TicketStatus"]!)
+                            {
+                                <option value="@status.Value">@status.Text</option>
+                            }
+                        </select>
+                        <label>Ticket Status</label>
+                        <span class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- User Type -->
+                <div class="col-4">
+                    <div class="form-floating">
+                        <select class="form-select" asp-for="User_ID">
+                            @foreach (var user in (SelectList)ViewData["Users"]!)
+                            {
+                                <option value="@user.Value">@user.Text</option>
+                            }
+                        </select>
+                        <label>Ticket Assign To</label>
+                        <span class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Priority Type -->
+                <div class="col-4">
+                    <div class="form-floating">
+                        <select class="form-select" asp-for="Priority_ID">
+                            @foreach (var priority in (SelectList)ViewData["Priority"]!)
+                            {
+                                <option value="@priority.Value">@priority.Text</option>
+                            }
+                        </select>
+                        <label>Priority Type</label>
+                        <span class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display Ticket ID (Readonly) -->
+            <div class="mb-3 form-floating">
+                <input asp-for="TicketID" class="form-control" placeholder="" readonly />
+                <label asp-for="TicketID">Ticket ID</label>
+                <span asp-validation-for="TicketID" class="text-danger"></span>
+            </div>
+
+            <!-- Category Name (Readonly) -->
+            <div class="mb-3 form-floating">
+                <input asp-for="Category_Name" class="form-control" placeholder="" readonly />
+                <label asp-for="Category_Name">Category Name</label>
+                <span asp-validation-for="Category_Name" class="text-danger"></span>
+            </div>
+
+            <!-- Start Date (Readonly) -->
+            <div class="mb-3 form-floating">
+                <input asp-for="Ticket_StartDate" class="form-control" placeholder="" readonly />
+                <label asp-for="Ticket_StartDate">Start Date</label>
+                <span asp-validation-for="Ticket_StartDate" class="text-danger"></span>
+            </div>
+
+            <!-- Ticket Last Updated -->
+            <div class="mb-3 form-floating">
+                <input asp-for="TicketLastUpdated" class="form-control" placeholder="" readonly />
+                <label asp-for="TicketLastUpdated">Ticket Last Updated On</label>
+                <span asp-validation-for="TicketLastUpdated" class="text-danger"></span>
+            </div>
+
+            <!-- Created By (Readonly) -->
+            <div class="mb-3 form-floating">
+                <input asp-for="CreatedBy" class="form-control" placeholder="" readonly />
+                <label asp-for="CreatedBy">Ticket Created By</label>
+                <span asp-validation-for="CreatedBy" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <input type="submit" class="btn btn-primary" value="Update Ticket" />
+            </div>
+
+        </form>
+
+        @if (ViewData["Message"] != null)
+        {
+            <div class="alert alert-@ViewData["MsgType"]">
+                @ViewData["Message"]
+            </div>
+        }
+    </div>
+</body>
+</html>

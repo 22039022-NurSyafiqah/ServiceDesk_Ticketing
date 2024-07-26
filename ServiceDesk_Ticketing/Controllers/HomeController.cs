@@ -7,6 +7,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Reflection;
+using System.Security.Cryptography.Xml;
+using System.Windows.Input;
 
 namespace ServiceDesk_Ticketing.Controllers
 {
@@ -79,6 +81,7 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
+
         public IActionResult WebsiteUpdate()
         {
             return View();
@@ -137,7 +140,67 @@ namespace ServiceDesk_Ticketing.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+
+
+
         [HttpGet]
+        public IActionResult GenerateReport()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateReport(IFormCollection form)
+        {
+            string reportData = await GenerateReportDataAsync();
+
+            ViewData["ReportData"] = reportData;
+
+            return View();
+        }
+
+        private async Task<string> GenerateReportDataAsync()
+        {
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            // Assuming your report data comes from a database query.
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string sql = @"
+                   SELECT 
+                        c.Category_Name AS Category,
+                        FORMAT(tr.Ticket_StartDate, 'yyyy-MM') AS Month,
+                        COUNT(tr.TicketID) AS Count 
+                        FROM TicketRequest tr
+                        JOIN Category c ON tr.Category_ID = c.Category_ID
+                        WHERE YEAR(tr.Ticket_StartDate) = @Year 
+                        GROUP BY c.Category_Name, FORMAT(tr.Ticket_StartDate, 'yyyy-MM');"; ; // Replace with your actual query
+
+                using (var command = new SqlCommand(sql, connection))
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    var reportData = new StringWriter();
+
+                    // Example of reading data and converting to a CSV string format.
+                    while (await reader.ReadAsync())
+                    {
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            reportData.Write(reader[i].ToString());
+                            if (i < reader.FieldCount - 1)
+                                reportData.Write(",");
+                        }
+                        reportData.WriteLine();
+                    }
+
+                    return reportData.ToString();
+                }
+            }
+        }
+                [HttpGet]
         public IActionResult PrintingQuota()
         {
             return View();
@@ -457,6 +520,229 @@ namespace ServiceDesk_Ticketing.Controllers
                 }
             }
         }
+        [HttpPost]
+        public IActionResult SubmitFacebookPost(List<IFormFile> Photos)
+        {
+            IFormCollection form = HttpContext.Request.Form;
+
+            // Get the caption from the form
+            string captionForPhoto = form["Caption"].ToString().Trim();
+
+            List<byte[]> photoBytesList = new List<byte[]>();
+
+            // Handle photo upload
+            if (Photos != null && Photos.Count > 0)
+            {
+                foreach (var photo in Photos)
+                {
+                    if (photo != null && photo.Length > 0)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            photo.CopyTo(memoryStream);
+                            photoBytesList.Add(memoryStream.ToArray());
+                        }
+                    }
+                }
+            }
+
+            // Get the connection string from configuration
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // Use a transaction to ensure all inserts succeed or fail together
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (var photoBytes in photoBytesList)
+                        {
+                            string sql = @"
+                        INSERT INTO SocialMedia 
+                        (Category_ID, SocialMediaPhoto, SocialMediaCaption)
+                        VALUES (@Category_ID, @SocialMediaPhoto, @SocialMediaCaption)";
+
+                            using (var command = new SqlCommand(sql, connection, transaction))
+                            {
+                                int categoryId = 8; // Assuming Category ID for "Facebook Post"
+                                command.Parameters.AddWithValue("@Category_ID", categoryId);
+                                command.Parameters.AddWithValue("@SocialMediaPhoto", photoBytes);
+                                command.Parameters.AddWithValue("@SocialMediaCaption", captionForPhoto);
+
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        // Commit the transaction if all inserts succeed
+                        transaction.Commit();
+
+                        TempData["Message"] = "Facebook Post Request Added";
+                        TempData["MsgType"] = "Success";
+                        return RedirectToAction("Submission", "Home");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Rollback the transaction if any insert fails
+                        transaction.Rollback();
+
+                        TempData["Message"] = "Error adding Facebook Post Request: " + ex.Message;
+                        TempData["MsgType"] = "Error";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+            }
+        }
+        [HttpPost]
+        public IActionResult SubmitWebsite(IFormFile UploadDocument, IFormFile UploadAttachment)
+        {
+            IFormCollection form = HttpContext.Request.Form;
+
+            DateTime DateOfUpdate = DateTime.Parse(form["DateOfUpdate"].ToString().Trim());
+            string UploadLink = form["UrlLinks"].ToString().Trim();
+
+            byte[] UploadDocumentBytes = null;
+            byte[] UploadAttachmentBytes = null;
+
+            if (UploadDocument != null && UploadDocument.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    UploadDocument.CopyTo(memoryStream);
+                    UploadDocumentBytes = memoryStream.ToArray();
+                }
+
+                // Log to verify the file content
+                System.Diagnostics.Debug.WriteLine($"UploadDocument Length: {UploadDocumentBytes?.Length}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("No UploadDocument uploaded or file is empty.");
+            }
+
+            if (UploadAttachment != null && UploadAttachment.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    UploadAttachment.CopyTo(memoryStream);
+                    UploadAttachmentBytes = memoryStream.ToArray();
+                }
+
+                // Log to verify the file content
+                System.Diagnostics.Debug.WriteLine($"UploadAttachment Length: {UploadAttachmentBytes?.Length}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("No UploadAttachment uploaded or file is empty.");
+            }
+
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string sql = @"
+            INSERT INTO Website 
+            (Category_ID, WebUploadDate, Website_UploadWords_PPT, Website_URLupdate, Website_AnyMedia)
+            VALUES (@Category_ID, @WebUploadDate, @Website_UploadWords_PPT, @Website_URLupdate, @Website_AnyMedia)";
+
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    int categoryId = 9;  // Adjust if necessary
+                    command.Parameters.AddWithValue("@Category_ID", categoryId);
+                    command.Parameters.AddWithValue("@WebUploadDate", DateOfUpdate);
+
+                    // Ensure binary data is being inserted into varbinary(max) columns
+                    command.Parameters.Add("@Website_UploadWords_PPT", SqlDbType.VarBinary).Value = (object)UploadDocumentBytes ?? DBNull.Value;
+                    command.Parameters.Add("@Website_AnyMedia", SqlDbType.VarBinary).Value = (object)UploadAttachmentBytes ?? DBNull.Value;
+
+                    // Ensure text data is being inserted into varchar column
+                    command.Parameters.Add("@Website_URLupdate", SqlDbType.NVarChar, 1000).Value = UploadLink;
+
+                    int res = command.ExecuteNonQuery();
+
+                    if (res == 1)
+                    {
+                        TempData["Message"] = "Website Update Request Added";
+                        TempData["MsgType"] = "Success";
+                        return RedirectToAction("Submission", "Home");
+                    }
+                    else
+                    {
+                        TempData["Message"] = "Error adding Website Update Request";
+                        TempData["MsgType"] = "Error";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+            }
+        }
+
+
+
+
+
+        // Get count of tickets based on status
+        [HttpGet]
+        public IActionResult GetStatusCount(string status)
+        {
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+            int count = 0;
+
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    string sql = @"
+                        SELECT COUNT(*)
+                        FROM TicketRequest tr
+                        INNER JOIN TicketStatus ts ON tr.TicketStatus_ID = ts.TicketStatus_ID
+                        WHERE ts.TicketStatus_Type = @TicketStatus_Type";
+
+                    using (var command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@TicketStatus_Type", status);
+                        count = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                Console.WriteLine("Error: " + ex.Message);
+                return StatusCode(500, Json(new { error = "An error occurred while fetching the status count." }));
+            }
+
+            return Json(new { count });
+        }
+
+
+
+        // Total Tickets Count
+        [HttpGet]
+        public IActionResult GetTotalTicketsCount()
+        {
+            int totalTicketsCount = 0;
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = "SELECT COUNT(*) FROM TicketRequest";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    totalTicketsCount = (int)command.ExecuteScalar();
+                }
+            }
+
+            return Json(new { count = totalTicketsCount });
+        }
+
+
+
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -464,7 +750,8 @@ namespace ServiceDesk_Ticketing.Controllers
             {
                 return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
             }
-        }
-    }
-
+       
     
+    
+    }
+    }

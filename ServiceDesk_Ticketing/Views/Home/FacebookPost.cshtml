@@ -93,14 +93,14 @@
         <div class="text-center mb-4">
             <h3>Facebook Post Session</h3>
         </div>
-        <form asp-action="Submit" method="post" enctype="multipart/form-data">
+        <form asp-action="SubmitFacebookPost" asp-controller="Home" method="post" enctype="multipart/form-data">
             <div class="mb-3">
-                <label asp-for="Photos" class="form-label">Select your pictures (max 15):</label>
-                <input asp-for="Photos" class="form-control" type="file" multiple>
+                <label asp-for="Photos" class="form-label">Select your picture to upload:</label>
+                <input asp-for="Photos" class="form-control" type="file" name="Photos" multiple>
                 <span asp-validation-for="Photos" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="Caption" class="form-label">Caption for each photo:</label>
+                <label asp-for="Caption" class="form-label">Caption for selected picture:</label>
                 <input asp-for="Caption" class="form-control" placeholder="Type here...">
                 <span asp-validation-for="Caption" class="text-danger"></span>
             </div>

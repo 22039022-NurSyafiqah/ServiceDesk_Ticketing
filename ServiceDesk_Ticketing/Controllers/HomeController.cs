@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Security.Cryptography.Xml;
 using System.Windows.Input;
+using System.Text.Json;
+using Newtonsoft.Json;
+using static ServiceDesk_Ticketing.Controllers.HomeController;
 
 namespace ServiceDesk_Ticketing.Controllers
 {
@@ -16,13 +19,14 @@ namespace ServiceDesk_Ticketing.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
+       
 
         public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
         }
-
+       
 
         public IActionResult Index()
         {
@@ -141,66 +145,175 @@ namespace ServiceDesk_Ticketing.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult GenerateReport()
+        {
+            var barChartData = GetMonthlyTicketData();
+            var lineChartData = GetMonthlyResolvedData();
+            var pieChartData = GetTicketStatusData();
+
+            ViewBag.BarChartData = JsonConvert.SerializeObject(barChartData.OrderBy(x => x.MonthNumber));
+            ViewBag.LineChartData = JsonConvert.SerializeObject(lineChartData.OrderBy(x => x.MonthNumber));
+            ViewBag.PieChartData = JsonConvert.SerializeObject(pieChartData);
+
+            return View();
+        }
+
+        // Retrieving Data for Bar Chart
+        private List<ChartData> GetMonthlyTicketData()
+        {
+            var data = new List<ChartData>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"SELECT MONTH(Ticket_StartDate) AS Month, COUNT(*) AS Count 
+                       FROM TicketRequest 
+                       GROUP BY MONTH(Ticket_StartDate)";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            data.Add(new ChartData
+                            {
+                                Month = GetMonthName((int)reader["Month"]),
+                                MonthNumber = (int)reader["Month"],
+                                Count = (int)reader["Count"]
+                            });
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+
+        // Retrieving Data for Line Graph
+        private List<LineChartData> GetMonthlyResolvedData()
+        {
+            var data = new List<LineChartData>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"
+            SELECT 
+                MONTH(Ticket_StartDate) AS Month,
+                tr.Category_ID,
+                c.Category_Name,
+                COUNT(*) AS Count 
+            FROM TicketRequest tr
+            JOIN Category c ON tr.Category_ID = c.Category_ID
+            GROUP BY MONTH(Ticket_StartDate), tr.Category_ID, c.Category_Name";
+
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var month = GetMonthName((int)reader["Month"]);
+                            var categoryId = reader["Category_ID"].ToString();
+                            var categoryName = reader["Category_Name"].ToString();
+                            var monthNumber = (int)reader["Month"];
+                            var count = (int)reader["Count"];
+
+                            var dataEntry = data.FirstOrDefault(d => d.Month == month);
+                            if (dataEntry == null)
+                            {
+                                dataEntry = new LineChartData { Month = month, MonthNumber = monthNumber, CategoryData = new Dictionary<string, int>() };
+                                data.Add(dataEntry);
+                            }
+                            if (!dataEntry.CategoryData.ContainsKey(categoryName))
+                            {
+                                dataEntry.CategoryData[categoryName] = 0;
+                            }
+                            dataEntry.CategoryData[categoryName] += count;
+                        }
+                    }
+                }
+            }
+
+            // Logging the data
+            foreach (var entry in data)
+            {
+                Console.WriteLine($"Month: {entry.Month}, MonthNumber: {entry.MonthNumber}");
+                foreach (var category in entry.CategoryData)
+                {
+                    Console.WriteLine($"Category: {category.Key}, Count: {category.Value}");
+                }
+            }
+
+            return data;
+        }
+
+
+
+
+        // Retrieving Data for Pie Chart
+        private List<PieChartData> GetTicketStatusData()
+        {
+            var data = new List<PieChartData>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"SELECT ts.TicketStatus_Type AS Status, COUNT(*) AS Count 
+                       FROM TicketRequest tr 
+                       INNER JOIN TicketStatus ts ON tr.TicketStatus_ID = ts.TicketStatus_ID 
+                       GROUP BY ts.TicketStatus_Type";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            data.Add(new PieChartData
+                            {
+                                Status = reader["Status"].ToString(),
+                                Count = (int)reader["Count"]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        private string GetMonthName(int month)
+        {
+            return System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month);
+        }
+
+        public class ChartData
+        {
+            public string Month { get; set; }
+            public int MonthNumber { get; set; }
+            public int Count { get; set; }
+        }
+
+        public class LineChartData
+        {
+            public string Month { get; set; }
+            public int MonthNumber { get; set; }
+            public Dictionary<string, int> CategoryData { get; set; }
+        }
+
+        public class PieChartData
+        {
+            public string Status { get; set; }
+            public int Count { get; set; }
+        }
+
 
 
 
         [HttpGet]
-        public IActionResult GenerateReport()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GenerateReport(IFormCollection form)
-        {
-            string reportData = await GenerateReportDataAsync();
-
-            ViewData["ReportData"] = reportData;
-
-            return View();
-        }
-
-        private async Task<string> GenerateReportDataAsync()
-        {
-            string connectionString = _configuration.GetConnectionString("DefaultConnection");
-
-            // Assuming your report data comes from a database query.
-            using (var connection = new SqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-
-                string sql = @"
-                   SELECT 
-                        c.Category_Name AS Category,
-                        FORMAT(tr.Ticket_StartDate, 'yyyy-MM') AS Month,
-                        COUNT(tr.TicketID) AS Count 
-                        FROM TicketRequest tr
-                        JOIN Category c ON tr.Category_ID = c.Category_ID
-                        WHERE YEAR(tr.Ticket_StartDate) = @Year 
-                        GROUP BY c.Category_Name, FORMAT(tr.Ticket_StartDate, 'yyyy-MM');"; ; // Replace with your actual query
-
-                using (var command = new SqlCommand(sql, connection))
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    var reportData = new StringWriter();
-
-                    // Example of reading data and converting to a CSV string format.
-                    while (await reader.ReadAsync())
-                    {
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            reportData.Write(reader[i].ToString());
-                            if (i < reader.FieldCount - 1)
-                                reportData.Write(",");
-                        }
-                        reportData.WriteLine();
-                    }
-
-                    return reportData.ToString();
-                }
-            }
-        }
-                [HttpGet]
         public IActionResult PrintingQuota()
         {
             return View();
@@ -685,6 +798,7 @@ namespace ServiceDesk_Ticketing.Controllers
 
 
         // Get count of tickets based on status
+
         [HttpGet]
         public IActionResult GetStatusCount(string status)
         {
@@ -722,6 +836,7 @@ namespace ServiceDesk_Ticketing.Controllers
 
 
         // Total Tickets Count
+
         [HttpGet]
         public IActionResult GetTotalTicketsCount()
         {

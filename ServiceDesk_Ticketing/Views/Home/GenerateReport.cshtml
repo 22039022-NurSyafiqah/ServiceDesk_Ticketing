@@ -1,0 +1,246 @@
+﻿@model ServiceDesk_Ticketing.Models.Home
+
+@{
+    ViewBag.Title = "Generate Report";
+}
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generate Report</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid #ccc;
+    }
+
+    .footer {
+        width: 100%;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background: none;
+        border-top: none;
+        box-shadow: none;
+        padding: 10px 0;
+    }
+
+        .footer p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+    .container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px auto;
+        width: 90%;
+        max-width: 1200px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    .text-center {
+        text-align: center;
+    }
+
+    .mt-4 {
+        margin-top: 20px;
+    }
+
+    .mb-3 {
+        margin-bottom: 15px;
+    }
+
+</style>
+</head>
+
+<h4>Total Number of Tickets for Each Month</h4>
+
+<div class="chart-container">
+    <canvas id="barChart"></canvas>
+</div>
+
+<h4>Ticket Category Comparison</h4>
+
+<div class="chart-container">
+    <canvas id="lineChart"></canvas>
+</div>
+
+
+<h4>Statistics of Ticket Status</h4>
+
+<div class="chart-container">
+
+    <canvas id="pieChart"></canvas>
+</div>
+
+@section Scripts {
+
+   
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        var barChartData = @Html.Raw(ViewBag.BarChartData);
+        var lineChartData = @Html.Raw(ViewBag.LineChartData);
+        var pieChartData = @Html.Raw(ViewBag.PieChartData);
+
+        console.log("Bar Chart Data:", barChartData);
+        console.log("Line Chart Data:", lineChartData);
+        console.log("Pie Chart Data:", pieChartData);
+
+        // Bar Chart
+        var ctxBar = document.getElementById('barChart').getContext('2d');
+        var barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: barChartData.map(d => d.Month),
+                datasets: [{
+                    label: 'Monthly Tickets',
+                    data: barChartData.map(d => d.Count),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+
+
+        // Line Chart
+        var ctxLine = document.getElementById('lineChart').getContext('2d');
+        var lineChartLabels = lineChartData.map(d => d.Month);
+        var lineChartDatasets = [];
+
+        var categories = [...new Set(lineChartData.flatMap(d => Object.keys(d.CategoryData)))];
+        var colors = [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(199, 199, 199, 0.2)',
+            'rgba(83, 102, 255, 0.2)',
+            'rgba(150, 50, 86, 0.2)',
+            'rgba(75, 192, 75, 0.2)'
+        ];
+
+        categories.forEach((category, index) => {
+            var categoryData = lineChartData.map(d => d.CategoryData[category] || 0);
+            lineChartDatasets.push({
+                label: category,
+                data: categoryData,
+                backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length].replace('0.2', '1'),
+                borderWidth: 1
+            });
+        });
+
+        console.log("Line Chart Labels:", lineChartLabels);
+        console.log("Line Chart Datasets:", lineChartDatasets);
+
+        var lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: lineChartLabels,
+                datasets: lineChartDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+
+
+        // Pie Chart
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        var pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: pieChartData.map(d => d.Status),
+                datasets: [{
+                    label: 'Ticket Status',
+                    data: pieChartData.map(d => d.Count),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+}
+
+<style>
+    .chart-container {
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 400px; 
+    }
+</style>

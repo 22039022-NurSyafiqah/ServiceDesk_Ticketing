@@ -19,50 +19,42 @@
     <style>
         body {
             background-image: url('@Url.Content("~/images/peachBG.jpg")');
-            background-size: cover; /* This will make the image cover the entire background */
-            background-repeat: no-repeat; /* This prevents the image from repeating */
-            background-attachment: fixed; /* This makes the background image fixed in place */
-            background-position: center center; /* Center the image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center center;
         }
     </style>
 </head>
 <body>
 
-        @if (User.Identity!.IsAuthenticated)
+    @if (User.Identity!.IsAuthenticated)
+    {
+        if (User.IsInRole("ICT Team"))
         {
-            if (User.IsInRole("ICT Team"))
-            {
-                <partial name="ICTNavBar" />
-            }
-            else if (User.IsInRole("School Leader"))
-            {
-                <partial name="LeaderNavBar" />
-            }
-            else
-            {
-                <partial name="StaffNavBar" />
-            }
+            <partial name="ICTNavBar" />
+        }
+        else if (User.IsInRole("School Leader"))
+        {
+            <partial name="LeaderNavBar" />
         }
         else
         {
-            <partial name="Guest" />
+            <partial name="StaffNavBar" />
         }
+    }
+    else
+    {
+        <partial name="Guest" />
+    }
 
-        <div class="container">
-            @RenderBody()
-        </div>
+    <div class="container">
+        @RenderBody()
+    </div>
 
-@*         @RenderSection("MoreScripts", false)
- *@
-    @RenderSection("MoreScripts", false)
-
-      @*<footer class="border-top mid-align text-muted">
-            <div class="container text-center">
-                <p class="mb-4">© 2024 - Service Desk Ticketing</p>
-            </div>
-        </footer>*@
-
-
+    @RenderSection("MoreScripts", required: false)
+    @RenderSection("Scripts", required: false) <!-- Add this line -->
 
 </body>
 </html>
+

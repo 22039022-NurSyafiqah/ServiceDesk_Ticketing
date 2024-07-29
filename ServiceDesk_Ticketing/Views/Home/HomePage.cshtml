@@ -49,40 +49,30 @@
     </style>
 </head>
 
-    <body>
-        <div class="home-container">
-
+<body>
+    <div class="home-container">
         <p>Welcome, @User.Identity!.Name!</p>
         <p>You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
 
-    @if (User.IsInRole("ICT Team"))  {
-
-        // Need re-code. So that when user select the option, it'll record down in Database
-        <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
-        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
-        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Search Tickets</button>
-        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Generate Report</button>
-        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">View Tickets</button>
-    }
-    else if (User.IsInRole("School Leader"))
-    {
-            // Need re-code. So that when user select the option, it'll record down in Database
+        @if (User.IsInRole("ICT Team"))
+        {
             <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
             <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Generate Report</button>
-
-    } else
+            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Search Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">View Tickets</button>
+        }
+        else if (User.IsInRole("School Leader"))
         {
-            // Need re-code. So that when user select the option, it'll record down in Database
+            <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
+        }
+        else
+        {
             <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
             <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
         }
-
     </div>
-
-
-    </body>
-
-
+</body>
 </html>
-

@@ -13,6 +13,14 @@ namespace ServiceDesk_Ticketing.Models
         [StringLength(500, ErrorMessage = "Maximum is 500 characters")]
         public string Description { get; set; } = null!;
 
+        [Required(ErrorMessage = "Enter the Sticker Tag")]
+        [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
+        public string StickerTag { get; set; } = null!;
+
+        [Required(ErrorMessage = "Enter the Sticker Tag")]
+        [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
+        public string SerialNumber { get; set; } = null!;
+
         [Required(ErrorMessage = "Enter the date of the issue")]
         [DataType(DataType.Date)]
         public DateTime DateOfIssue { get; set; }
@@ -155,6 +163,7 @@ namespace ServiceDesk_Ticketing.Models
         [Required(ErrorMessage = "Enter the manual guide link")]
         [StringLength(200, ErrorMessage = "Maximum is 200 characters")]
         public string ManualGuide { get; set; } = null!;
+
         // New fields for Event/ICT Support
         [Required(ErrorMessage = "Select the support type")]
         public string SupportType { get; set; } = null!;

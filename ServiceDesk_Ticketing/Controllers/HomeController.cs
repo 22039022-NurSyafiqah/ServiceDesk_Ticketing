@@ -125,12 +125,15 @@ namespace ServiceDesk_Ticketing.Controllers
         {
             return View();
         }
+
+
         [HttpPost]
         public IActionResult SubmitFaultReport(IFormFile photo)
         {
             IFormCollection form = HttpContext.Request.Form;
-
+            string equipType = form["EquipmentReqType"].ToString().Trim();
             string description = form["Description"].ToString().Trim();
+            string stickerTag = form["StickerTag"].ToString().Trim();
             DateTime incidentDate = DateTime.Parse(form["DateOfIssue"].ToString().Trim());
             TimeSpan incidentTime = TimeSpan.Parse(form["TimeOfIssue"].ToString().Trim());
             string classroomVenue = form["Venue"].ToString().Trim();
@@ -152,17 +155,18 @@ namespace ServiceDesk_Ticketing.Controllers
                 connection.Open();
 
                 string sql = @"
-                    INSERT INTO FaultReport 
-                    (AssetID, Category_ID, FaultReport_IncidentTime, FaultReport_Description,FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
-                    VALUES (@AssetID, @Category_ID, @FaultReport_IncidentTime, @FaultReport_Description, @FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
+            INSERT INTO FaultReport 
+            ( Category_ID, FaultReport_IncidentTime, FaultReport_Equipment ,FaultReport_Description, FaultReport_StickerTag,FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
+            VALUES ( @Category_ID, @FaultReport_IncidentTime,@FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
 
                 using (var Command = new SqlCommand(sql, connection))
                 {
-                    int assetId = 2;
+
                     int categoryId = 1; // Assuming Category ID for "Fault Reporting"
-                    Command.Parameters.AddWithValue("@AssetID", assetId);
                     Command.Parameters.AddWithValue("@Category_ID", categoryId);
+                    Command.Parameters.AddWithValue("@FaultReport_Equipment", equipType);
                     Command.Parameters.AddWithValue("@FaultReport_Description", description);
+                    Command.Parameters.AddWithValue("@FaultReport_StickerTag", stickerTag);
                     Command.Parameters.AddWithValue("@FaultReport_IncidentTime", incidentTime);
                     Command.Parameters.AddWithValue("@FaultReport_IncidentDate", incidentDate);
                     Command.Parameters.AddWithValue("@FaultReport_ClassroomVenue", classroomVenue);
@@ -194,7 +198,10 @@ namespace ServiceDesk_Ticketing.Controllers
         public IActionResult SubmitEquipmentToUser(IFormFile photo)
         {
             IFormCollection form = HttpContext.Request.Form;
+            string equipType = form["EquipmentReqType"].ToString().Trim();
             string description = form["Description"].ToString().Trim();
+            string stickerTag = form["StickerTag"].ToString().Trim();
+            string serialNumber = form["SerialNumber"].ToString().Trim();
             DateTime incidentDate = DateTime.Parse(form["DateOfIssue"].ToString().Trim());
             TimeSpan incidentTime = TimeSpan.Parse(form["TimeOfIssue"].ToString().Trim());
             string classroomVenue = form["Venue"].ToString().Trim();
@@ -216,17 +223,20 @@ namespace ServiceDesk_Ticketing.Controllers
                 connection.Open();
 
                 string sql = @"
-                        INSERT INTO FaultReport 
-                        (AssetID, Category_ID, FaultReport_IncidentTime, FaultReport_Description,FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
-                        VALUES (@AssetID, @Category_ID, @FaultReport_IncidentTime, @FaultReport_Description, @FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
+                 INSERT INTO FaultReport 
+                 (Category_ID, FaultReport_IncidentTime, FaultReport_Equipment,FaultReport_Description, FaultReport_StickerTag, FaultReport_SerialNumber, FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
+                 VALUES  (@Category_ID, @FaultReport_IncidentTime, @FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag, @FaultReport_SerialNumber,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
 
                 using (var Command = new SqlCommand(sql, connection))
                 {
-                    int assetId = 2;
-                    int categoryId = 3; // Assuming Category ID for "IT Service/Support Request-Printing Quota"
-                    Command.Parameters.AddWithValue("@AssetID", assetId);
+
+                    int categoryId = 2; // Assuming Category ID for "IT Service/Support Request-Printing Quota"
+
                     Command.Parameters.AddWithValue("@Category_ID", categoryId);
+                    Command.Parameters.AddWithValue("@FaultReport_Equipment", equipType);
                     Command.Parameters.AddWithValue("@FaultReport_Description", description);
+                    Command.Parameters.AddWithValue("@FaultReport_StickerTag", stickerTag);
+                    Command.Parameters.AddWithValue("@FaultReport_SerialNumber", serialNumber);
                     Command.Parameters.AddWithValue("@FaultReport_IncidentTime", incidentTime);
                     Command.Parameters.AddWithValue("@FaultReport_IncidentDate", incidentDate);
                     Command.Parameters.AddWithValue("@FaultReport_ClassroomVenue", classroomVenue);

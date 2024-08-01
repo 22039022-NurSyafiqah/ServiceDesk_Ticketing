@@ -7,11 +7,23 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using static System.Net.Mime.MediaTypeNames;
+using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using System.Data.SqlClient;
 
 namespace ServiceDesk_Ticketing.Controllers;
 
 public class AccountController : Controller
 {
+    private readonly ILogger<AccountController> _logger;
+    private readonly IConfiguration _configuration;
+
+    public AccountController(ILogger<AccountController> logger, IConfiguration configuration)
+    {
+        _logger = logger;
+        _configuration = configuration;
+    }
+
     private const string LOGIN_SQL =
     @"SELECT * FROM SysUser 
         WHERE EmailAddress = '{0}'  
@@ -26,6 +38,7 @@ public class AccountController : Controller
 
     private const string REDIRECT_CNTR = "Home";
     private const string REDIRECT_ACTN = "HomePage";
+
     private const string ICT_CNTR = "Home"; // Add this line for the ICT controller 
     private const string ICT_ACTN = "ICTDashboard"; // Add this line for the ICT action 
 
@@ -100,7 +113,6 @@ public class AccountController : Controller
     }
 
 
-    // For Activation 
     [Authorize(Roles = "ICT Team")]
     public IActionResult ToggleStatus(string id)
     {
@@ -138,7 +150,127 @@ public class AccountController : Controller
     }
 
 
-    // For Drop-Down list (User Role) 
+
+
+
+
+
+    // Account Activation (IT Service Support)
+    [HttpGet]
+    public IActionResult AccountActivation()
+    {
+        ViewData["Application"] = GetListApplication();
+        ViewData["Employment"] = GetListEmployment();
+
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult SubmitAccountActivation()
+    {
+        IFormCollection form = HttpContext.Request.Form;
+
+        // Retrieve form data
+        string fullName = form["NewAcc_NewStaffName"].ToString().Trim();
+        string nric = form["NewAcc_NewStaffNRIC"].ToString().Trim();
+        string startdate = form["NewAcc_StartDate"].ToString().Trim();
+
+        string employType = form["EmpID"].ToString().Trim();
+        string appType = form["AppReqID"].ToString().Trim();
+
+        string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+        // Check if the user already exists based on fullName and NRIC
+        bool userExists = CheckIfUserExists(fullName, nric, connectionString);
+
+        if (!userExists)
+        {
+            TempData["Message"] = "Full name or NRIC doesn't exist in the database. Please contact ICT Team.";
+            TempData["MsgType"] = "warning";
+            return RedirectToAction("AccountActivation", "Account");
+        }
+
+        // If user does not exist, proceed with insertion
+        using (var connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            // Adjust the SQL query to include EmployType and AppType
+            string sql = @"
+        INSERT INTO AccountAcc (EmpID, AppReqID, Category_ID, NewAcc_NewStaffName, NewAcc_NewStaffNRIC, NewAcc_StartDate)
+        VALUES (@EmpID, @AppReqID, @Category_ID, @NewAcc_NewStaffName, @NewAcc_NewStaffNRIC, @NewAcc_StartDate)";
+
+            using (var command = new SqlCommand(sql, connection))
+            {
+                int categoryId = 6; // Assuming a fixed category ID for demonstration
+
+                // Add parameters to the command
+                command.Parameters.AddWithValue("@Category_ID", categoryId);
+                command.Parameters.AddWithValue("@EmpID", employType);
+                command.Parameters.AddWithValue("@AppReqID", appType);
+                command.Parameters.AddWithValue("@NewAcc_NewStaffName", fullName);
+                command.Parameters.AddWithValue("@NewAcc_NewStaffNRIC", nric);
+                command.Parameters.AddWithValue("@NewAcc_StartDate", startdate);
+
+                int res = command.ExecuteNonQuery();
+
+                if (res == 1)
+                {
+
+                    return RedirectToAction("Submission", "Home");
+                }
+                else
+                {
+                    /*                    ViewData["Message"] = "Error adding Request for Account Activation";
+                                        ViewData["MsgType"] = "Warning";*/
+                    return RedirectToAction("CreateTickets", "TicketRequest");
+                }
+            }
+        }
+    }
+
+    // For Account Activation
+    private bool CheckIfUserExists(string fullName, string nric, string connectionString)
+    {
+        using (var connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            string sql = "SELECT COUNT(*) FROM SysUser WHERE FullName = @FullName AND IC_num = @IC_num";
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@FullName", fullName);
+                command.Parameters.AddWithValue("@IC_num", nric);
+
+                int count = (int)command.ExecuteScalar();
+                return count > 0;
+            }
+        }
+    }
+
+
+
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+    private static SelectList GetListApplication()
+    {
+        string appSql = @"SELECT LTRIM(STR(AppReqID)) as Value, AppName as Text FROM AppRequired";
+        List<SelectListItem> listApplication = DBUtl.GetList<SelectListItem>(appSql);
+        return new SelectList(listApplication, "Value", "Text");
+    }
+
+    private static SelectList GetListEmployment()
+    {
+        string employSql = @"SELECT LTRIM(STR(EmpID)) as Value, Emp_Type as Text FROM Employment";
+        List<SelectListItem> listEmployment = DBUtl.GetList<SelectListItem>(employSql);
+        return new SelectList(listEmployment, "Value", "Text");
+    }
+
+
+    // Create User Account
     [Authorize(Roles = "ICT Team")]
     [HttpGet]
     public IActionResult Create()
@@ -157,15 +289,15 @@ public class AccountController : Controller
         }
         else
         {
-            // Ensure Status is set to true
-            user.IsActive = true;
+            // Ensure Status is set to false
+            user.IsActive = false;
 
 
             string insert =
-                @"INSERT INTO SysUser (User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, UserPw) 
-              VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', HASHBYTES('SHA1', '{5}'))";
+                @"INSERT INTO SysUser (User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, UserPw, IsActive) 
+              VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', HASHBYTES('SHA1', '{5}'), '{6}')";
 
-            if (DBUtl.ExecSQL(insert, user.User_Role_Name, user.FullName, user.IC_num, user.PhoneNumber, user.EmailAddress, user.UserPw) == 1)
+            if (DBUtl.ExecSQL(insert, user.User_Role_Name, user.FullName, user.IC_num, user.PhoneNumber, user.EmailAddress, user.UserPw, user.IsActive) == 1)
             {
 
                 ViewData["Message"] = "User successfully registered!";
@@ -180,61 +312,160 @@ public class AccountController : Controller
         }
     }
 
-    [HttpGet]
-    public IActionResult EditAccount(string id)
+    private static SelectList GetListUser()
     {
-        string select = @"SELECT User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, IsActive, UserPw, LastLogin FROM SysUser WHERE SysUser.User_ID = '{0}'";
+        string employSql = @"SELECT LTRIM(STR(EmpID)) as Value, Emp_Type as Text FROM Employment";
+        List<SelectListItem> listEmployment = DBUtl.GetList<SelectListItem>(employSql);
+        return new SelectList(listEmployment, "Value", "Text");
+    }
 
-        List<SysUser> list = DBUtl.GetList<SysUser>(select, id);
+    // Edit User Role and Phone Number
+    [Authorize(Roles = "ICT Team")]
+    [HttpGet]
+    public IActionResult EditAccount(int id)
+    {
+        // Retrieve the user from the database using the User_ID
+        string select = @"SELECT * FROM SysUser WHERE User_ID = {0}";
+        DataTable dt = DBUtl.GetTable(select, id);
 
-
-        if (list.Count == 1)
+        if (dt.Rows.Count == 1)
         {
-            return View(list[0]);
+            // Convert DataRow to SysUser object
+            SysUser user = new SysUser
+            {
+                User_ID = id,
+                FullName = dt.Rows[0]["FullName"].ToString(),
+                IC_num = dt.Rows[0]["IC_num"].ToString(),
+                EmailAddress = dt.Rows[0]["EmailAddress"].ToString(),
+                User_Role_Name = dt.Rows[0]["User_Role_Name"].ToString(),
+                PhoneNumber = dt.Rows[0]["PhoneNumber"].ToString()
+            };
+            return View("EditAccount", user);
         }
         else
         {
-            TempData["Message"] = "Account not found";
-            TempData["MsgType"] = "warning";
-            return RedirectToAction("Users");
+            ViewData["Message"] = "User not found.";
+            ViewData["MsgType"] = "danger";
+            return View("EditAccount");
         }
     }
 
 
-
+    [Authorize(Roles = "ICT Team")]
     [HttpPost]
-    public IActionResult EditAccount(SysUser usr)
+    public IActionResult EditAccount()
     {
-        if (!ModelState.IsValid)
+        IFormCollection form = HttpContext.Request.Form;
+        int userID = int.Parse(form["User_ID"].ToString().Trim());
+        string role = form["User_Role_Name"].ToString().Trim();
+        string phone = form["PhoneNumber"].ToString().Trim();
+
+        // Check if phone number is empty or not exactly 8 digits
+        if (string.IsNullOrEmpty(phone) || phone.Length != 8 || !phone.All(char.IsDigit))
         {
-            string errors = "";
-            foreach (var state in ModelState.Values)
+            // Retrieve existing user data to repopulate the form
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+            using (var connection = new SqlConnection(connectionString))
             {
-                foreach (var error in state.Errors)
+                connection.Open();
+                string select = @"SELECT * FROM SysUser WHERE User_ID = @User_ID";
+                using (var selectCommand = new SqlCommand(select, connection))
                 {
-                    errors += error.ErrorMessage + " ";
+                    selectCommand.Parameters.AddWithValue("@User_ID", userID);
+                    using (var reader = selectCommand.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            SysUser existingUser = new SysUser
+                            {
+                                User_ID = userID,
+                                FullName = reader["FullName"].ToString(),
+                                IC_num = reader["IC_num"].ToString(),
+                                EmailAddress = reader["EmailAddress"].ToString(),
+                                User_Role_Name = reader["User_Role_Name"].ToString(),
+                                PhoneNumber = reader["PhoneNumber"].ToString() // Display existing phone number
+                            };
+
+                            ViewData["Message"] = string.IsNullOrEmpty(phone)
+                                ? "Phone number cannot be empty. Please update it."
+                                : "Phone number must be exactly 8 digits.";
+                            ViewData["MsgType"] = "danger";
+
+                            // Pass existing user data back to the view
+                            return View("EditAccount", existingUser);
+                        }
+                        else
+                        {
+                            ViewData["Message"] = "User not found.";
+                            ViewData["MsgType"] = "danger";
+                            return View("Users");
+                        }
+                    }
                 }
             }
-            TempData["Message"] = errors;
-            TempData["MsgType"] = "danger";
-            return View("EditAccount", usr);
         }
 
-        string update = "UPDATE SysUser SET User_Role_Name = @1, PhoneNumber = @2 WHERE User_ID = @0";
-        int result = DBUtl.ExecSQL(update, usr.User_ID, usr.User_Role_Name, usr.PhoneNumber);
-
-        if (result == 1)
+        // Proceed with update if phone number is valid
+        string updateConnectionString = _configuration.GetConnectionString("DefaultConnection");
+        using (var updateConnection = new SqlConnection(updateConnectionString))
         {
-            TempData["Message"] = "Profile updated successfully!";
-            TempData["MsgType"] = "success";
-        }
-        else
-        {
-            TempData["Message"] = DBUtl.DB_Message;
-            TempData["MsgType"] = "danger";
-        }
+            updateConnection.Open();
+            string updateSql = @"
+        UPDATE SysUser 
+        SET User_Role_Name = @User_Role_Name, 
+            PhoneNumber = @PhoneNumber
+        WHERE User_ID = @User_ID";
 
-        return RedirectToAction("Users");
+            using (var updateCommand = new SqlCommand(updateSql, updateConnection))
+            {
+                updateCommand.Parameters.AddWithValue("@User_ID", userID);
+                updateCommand.Parameters.AddWithValue("@User_Role_Name", role);
+                updateCommand.Parameters.AddWithValue("@PhoneNumber", phone);
+
+                int res = updateCommand.ExecuteNonQuery();
+
+                if (res == 1)
+                {
+                    // Reload the user data after successful update
+                    string select = @"SELECT * FROM SysUser WHERE User_ID = @User_ID";
+                    using (var selectCommand = new SqlCommand(select, updateConnection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@User_ID", userID);
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                SysUser updatedUser = new SysUser
+                                {
+                                    User_ID = userID,
+                                    FullName = reader["FullName"].ToString(),
+                                    IC_num = reader["IC_num"].ToString(),
+                                    EmailAddress = reader["EmailAddress"].ToString(),
+                                    User_Role_Name = reader["User_Role_Name"].ToString(),
+                                    PhoneNumber = reader["PhoneNumber"].ToString()
+                                };
+
+                                ViewData["Message"] = "Account successfully updated!";
+                                ViewData["MsgType"] = "success";
+                                return View("EditAccount", updatedUser);
+                            }
+                            else
+                            {
+                                ViewData["Message"] = "User not found after update.";
+                                ViewData["MsgType"] = "danger";
+                                return View("Users");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ViewData["Message"] = "Error updating Account";
+                    ViewData["MsgType"] = "danger";
+                    return View("Users");
+                }
+            }
+        }
     }
 
 
@@ -267,3 +498,4 @@ public class AccountController : Controller
     }
 
 }
+

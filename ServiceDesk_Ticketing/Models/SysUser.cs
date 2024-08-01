@@ -11,7 +11,8 @@ public class SysUser
     [Required(ErrorMessage = "Please select the roles")]
     public string User_Role_Name { get; set; } = null!;
 
-    [Required(ErrorMessage = "Please enter valid NRIC Number")]
+    [Required(ErrorMessage = "Please enter a valid NRIC Number")]
+    [RegularExpression(@"^[STFG]\d{7}[A-Z]$", ErrorMessage = "NRIC number must start with 'S', 'T', 'F', or 'G', followed by 7 digits, and end with an alphabetic character.")]
     public string IC_num { get; set; } = null!;
 
     [Required(ErrorMessage = "Please enter a valid phone number")]

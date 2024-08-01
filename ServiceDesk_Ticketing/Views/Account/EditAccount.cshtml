@@ -11,6 +11,8 @@
             <h2>Edit User Account</h2>
         </div>
 
+
+
         <div class="card-body">
             <form asp-controller="Account"
                   asp-action="EditAccount"
@@ -26,8 +28,6 @@
                 </div>
 
 
-@*                 <p class="card-text">You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
- *@
                 <!-- NRIC Number (Readonly) -->
                 <div class="mb-3 form-floating">
                     <input asp-for="IC_num" class="form-control" placeholder="" readonly />
@@ -85,20 +85,11 @@
 
                 @if (ViewData["Message"] != null)
                 {
-                    <div class="form-group row">
-                        <div class="col-6">
-                            <div class="alert alert-@ViewData["MsgType"]">
-                                <b>Message: </b>@ViewData["Message"]<br />
-
-                                @if (ViewData["ExecSQL"] != null && ViewData["ExecSQL"] is int)
-                                {
-                                    <b>ExecSQL: </b>
-                                    @ViewData["ExecSQL"]
-                                }
-                            </div>
-                        </div>
+                    <div class="alert alert-@ViewData["MsgType"]">
+                        @ViewData["Message"]
                     </div>
                 }
+
 
             </form>
         </div>

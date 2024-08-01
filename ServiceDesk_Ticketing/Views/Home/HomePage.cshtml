@@ -43,36 +43,53 @@
         }
 
         p {
-            font-family: Verdana;
-            text-align: left;
+            font-family: 'Times New Roman';
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
     <div class="home-container">
-        <p>Welcome, @User.Identity!.Name!</p>
-        <p>You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
 
-        @if (User.IsInRole("ICT Team"))
+        <div class="text-center">
+            <div class="card border-secondary mb-3 shadow-sm border border-dark" style="max-width: 40rem; margin: auto;">
+                <div class="card-header bg-secondary text-white" style="font-family: 'Times New Roman', serif; font-size: 48px;">
+                    Welcome, @User.Identity!.Name!
+                </div>
+                <div class="card-body" style="font-family: 'Times New Roman', serif; font-size: 20px;">
+                    <p class="card-text">
+                        You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        @if (User.IsInRole("School Leader"))
         {
-            <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Search Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("CreateTicket", "TicketRequest")'">Create Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("TrackIssues", "TicketRequest")'">Track Issue</button>
             <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">View Tickets</button>
         }
-        else if (User.IsInRole("School Leader"))
+        else if (User.IsInRole("Staff"))
         {
-            <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("CreateTicket", "TicketRequest")'">Create Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("TrackIssues", "TicketRequest")'">Track Issue</button>
+
         }
         else
         {
-            <button class="btn-primary" onclick="location.href='@Url.Action("Index", "Home")'">Create Tickets</button>
-            <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("CreateTicket", "TicketRequest")'">Create Tickets</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("TrackIssues", "TicketRequest")'">Track Issue</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
+            <button class="btn-primary" onclick="location.href='@Url.Action("ListTickets", "TicketRequest")'">View Tickets</button>
+
         }
+
     </div>
+
 </body>
+
+
 </html>

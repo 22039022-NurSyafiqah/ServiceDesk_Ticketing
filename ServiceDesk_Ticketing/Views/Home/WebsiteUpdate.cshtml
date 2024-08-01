@@ -93,32 +93,31 @@
         <div class="text-center mb-4">
             <h3>Website Update Session</h3>
         </div>
-        <form asp-action="SubmitWebsite" method="post" enctype="multipart/form-data">
+        <form asp-action="Submit" method="post" asp-controller="Home" enctype="multipart/form-data">
             <div class="mb-3">
-                <label asp-for="UploadDocument" class="form-label">Select Document (Words/PPT> ):</label>
-                <input asp-for="UploadDocument" class="form-control" type="file" name="UploadDocument">
-                <span asp-validation-for="UploadDocument" class="text-danger"></span>
+                <label asp-for="Document" class="form-label">Select Document (Words/PPT):</label>
+                <input asp-for="Document" class="form-control" type="file" multiple>
+                <span asp-validation-for="Document" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="UploadAttachment" class="form-label">Select Attachment:</label>
-                <input asp-for="UploadAttachment" class="form-control" type="file" name="UploadAttachment">
-                <span asp-validation-for="UploadAttachment" class="text-danger"></span>
+                <label asp-for="UrlLinks" class="form-label">Upload URL links to Update:</label>
+                <input asp-for="UrlLinks" class="form-control" placeholder="Type here...">
+                <span asp-validation-for="UrlLinks" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Attachment" class="form-label">Any Attachment:</label>
+                <input asp-for="Attachment" class="form-control" type="file">
+                <span asp-validation-for="Attachment" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="DateOfUpdate" class="form-label">Date of Update:</label>
                 <input asp-for="DateOfUpdate" class="form-control">
                 <span asp-validation-for="DateOfUpdate" class="text-danger"></span>
             </div>
-
-            <div class="mb-3">
-                <label for="UrlLinks" class="form-label">Upload Link:</label>
-                <input type="text" name="UrlLinks" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
         </form>
-
         <div class="text-center mt-4">
-            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
+            <a href="@Url.Action("CreateTicket", "TicketRequest")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
         </div>
     </div>
 

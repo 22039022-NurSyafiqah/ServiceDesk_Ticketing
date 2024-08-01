@@ -18,9 +18,6 @@ public class TicketRequest
     [DataType(DataType.Date)]
     public DateTime Ticket_StartDate { get; set; }
 
-    //[DataType(DataType.Date)]
-    //public DateTime Ticket_EndDate { get; set; }
-
     [Required(ErrorMessage = "Enter the End Date")]
     [DataType(DataType.Date)]
 
@@ -32,7 +29,7 @@ public class TicketRequest
     public string? FullName { get; set; }
 
     [Required]
-    public string CreatedBy { get; set; } = null!;
+    public string CreatedBy { get; set; } 
 
     [Required]
     public int Category_ID { get; set; }

@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\TicketRequest\CreateTicket.cshtml" />
+    <None Include="Views\TicketRequest\EditTicket.cshtml" />
+    <None Include="Views\TicketRequest\ListTickets.cshtml" />
+    <None Include="Views\TicketRequest\TrackIssues.cshtml" />
     <None Include="wwwroot\images\schoollogo.jpg" />
     <None Include="wwwroot\lib\bootstrap\bootstrap-icons.svg" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />

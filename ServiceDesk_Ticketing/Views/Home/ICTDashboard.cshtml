@@ -91,20 +91,23 @@
 </head>
 
 <body>
-
     <div class="home-container">
-        <div class="left-container">
-            <div class="card border-primary" style="max-width: 25rem;">
-                <div class="card-header"> Welcome, @User.Identity!.Name!</div>
-                <div class="card-body text-primary">
-                    <p class="card-text">You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.</p>
+
+        <div class="text-center">
+            <div class="card border-secondary mb-3 shadow-sm border border-dark" style="max-width: 40rem; margin: auto;">
+                <div class="card-header bg-secondary text-white" style="font-family: 'Times New Roman', serif; font-size: 48px;">
+                    Welcome, @User.Identity!.Name!
+                </div>
+                <div class="card-body" style="font-family: 'Times New Roman', serif; font-size: 20px;">
+                    <p class="card-text">
+                        You logged in as @User.FindFirst(ClaimTypes.Role)?.Value.
+                    </p>
                 </div>
             </div>
         </div>
 
         <button class="btn-primary" onclick="location.href='@Url.Action("CreateTicket", "TicketRequest")'">Create Tickets</button>
-        <button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Track Issue</button>
-        <!--<button class="btn-primary" onclick="location.href='@Url.Action("Privacy", "Home")'">Search Tickets</button>-->
+        <button class="btn-primary" onclick="location.href='@Url.Action("TrackIssues", "TicketRequest")'">Track Issue</button>
         <button class="btn-primary" onclick="location.href='@Url.Action("GenerateReport", "Home")'">Generate Report</button>
         <button class="btn-primary" onclick="location.href='@Url.Action("ListTickets", "TicketRequest")'">View Tickets</button>
 

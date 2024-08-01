@@ -73,7 +73,7 @@ namespace ServiceDesk_Ticketing.Models
 
         // New fields for Request for Equipment
         [Required(ErrorMessage = "Select at least one equipment")]
-        public List<string> EquipmentSelection { get; set; } = new List<string>();
+        public string EquipmentSelection { get; set; } = null!;
 
         [Required(ErrorMessage = "Enter the quantity")]
         public int EquipmentQuantity { get; set; }
@@ -96,14 +96,14 @@ namespace ServiceDesk_Ticketing.Models
 
         // New fields for Website Update Session
         [Required(ErrorMessage = "Select a document to upload")]
-        public List<IFormFile> UploadDocument { get; set; } = new List<IFormFile>();
+        public List<IFormFile> Document { get; set; } = new List<IFormFile>();
 
         [Required(ErrorMessage = "Enter the URL links to update")]
         [StringLength(500, ErrorMessage = "Maximum is 500 characters")]
         public string UrlLinks { get; set; } = null!;
 
         [Required(ErrorMessage = "Select any attachments to upload")]
-        public IFormFile? UploadAttachment { get; set; }
+        public IFormFile? Attachment { get; set; }
 
         [Required(ErrorMessage = "Enter the date of the update")]
         [DataType(DataType.Date)]
@@ -208,6 +208,34 @@ namespace ServiceDesk_Ticketing.Models
 
         [Required(ErrorMessage = "Select the equipment needed")]
         public List<string> EquipmentNeeded { get; set; } = new List<string>();
+
+        [Required(ErrorMessage = "Please select Equipment Type.")]
+        public string EquipmentReqType { get; set; } = null!;
+
+        // New fields for Account Activation for New Staff
+        [Required(ErrorMessage = "Enter the Full Name")]
+        [StringLength(100, ErrorMessage = "Maximum is 100 characters")]
+        public string NewAcc_NewStaffName { get; set; } = null!;
+
+        [Required(ErrorMessage = "Enter the NRIC Number")]
+        [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
+        [DataType(DataType.Password)]
+        public string NewAcc_NewStaffNRIC { get; set; } = null!;
+
+        public int EmpID { get; set; }
+
+        public string? Emp_Type { get; set; } = null;
+
+
+        [Required(ErrorMessage = "Select the Application Required")]
+        public int AppReqID { get; set; }
+
+        public string? AppName { get; set; } = null;
+
+
+        [Required(ErrorMessage = "Enter the Start Date")]
+        [DataType(DataType.Date)]
+        public DateTime NewAcc_StartDate { get; set; }
 
     }
 }

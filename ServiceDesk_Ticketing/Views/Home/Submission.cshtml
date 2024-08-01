@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@model TicketRequest
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
+    <title>Submission Confirmation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,10 +39,6 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
-        }
-
-        .form-check-label {
-            margin-left: 5px;
         }
 
         .btn-primary {
@@ -82,33 +79,19 @@
             margin-bottom: 20px;
         }
 
-        .form-check {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .form-check-input {
-            margin-right: 5px;
-        }
-
-        .w-100 {
-            width: 100%;
-        }
-
         .text-danger {
             color: red;
         }
     </style>
 </head>
 <body>
-    
     <div class="container">
-        <div class="content">
+        <div class="content text-center">
             <h3>Your ticket has been successfully created!</h3>
-            <p>Thank you for submitting An acknowledgement email has been sent to your email.</p>
+            <p>Thank you for submitting!</p>
         </div>
         <div class="text-center mt-4">
-            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Request another ticket</a>
+            <a href="@Url.Action("CreateTicket", "TicketRequest")" style="display: inline-block; margin-top: 20px;">Request another ticket</a>
         </div>
     </div>
 </body>

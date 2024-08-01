@@ -93,21 +93,21 @@
         <div class="text-center mb-4">
             <h3>Facebook Post Session</h3>
         </div>
-        <form asp-action="SubmitFacebookPost" asp-controller="Home" method="post" enctype="multipart/form-data">
+        <form asp-action="SubmitFacebookPost" method="post" asp-controller="Home" enctype="multipart/form-data">
             <div class="mb-3">
-                <label asp-for="Photos" class="form-label">Select your picture to upload:</label>
-                <input asp-for="Photos" class="form-control" type="file" name="Photos" multiple>
+                <label asp-for="Photos" class="form-label">Select your pictures (max 15):</label>
+                <input asp-for="Photos" class="form-control" type="file" multiple>
                 <span asp-validation-for="Photos" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="Caption" class="form-label">Caption for selected picture:</label>
+                <label asp-for="Caption" class="form-label">Caption for each photo:</label>
                 <input asp-for="Caption" class="form-control" placeholder="Type here...">
                 <span asp-validation-for="Caption" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-primary w-100">Submit</button>
         </form>
         <div class="text-center mt-4">
-            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
+            <a href="@Url.Action("CreateTicket", "TicketRequest")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
         </div>
     </div>
 

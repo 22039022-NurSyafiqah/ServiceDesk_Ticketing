@@ -1,0 +1,133 @@
+﻿@model TicketRequest
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-check-label {
+            margin-left: 5px;
+        }
+
+        .btn-primary {
+            background-color: #ff6f61;
+            border: none;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background-color: #ff5a4c;
+            }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .times-new-roman {
+            font-family: 'Times New Roman', serif;
+        }
+    </style>
+</head>
+<body>
+    @{
+        ViewData["Title"] = "Index";
+    }
+
+    <div class="text-center">
+        <img src="~/images/icon.jpg" height="110" class="me-3" />
+        <div class="header text-center mb-4">
+            <h1 class="times-new-roman">
+                Welcome to Service Ticketing System!
+            </h1>
+        </div>
+        <div class="container mt-5">
+            <div class="header text-center mb-4 ">
+                <h6>WHICH CATEGORY DOES YOUR ISSUE FALL UNDER?</h6>
+            </div>
+            <form asp-controller="TicketRequest" asp-action="SubmitCreateTicket" method="post">
+
+                <!-- Ticket ID (Hidden) -->
+                <input asp-for="TicketID" type="hidden" />
+
+                <!-- Drop down list for Category ID -->
+                <div class="mb-4 custom-select-container text-center">
+                    <label for="categorySelect" class="form-label custom-label">Select Category</label>
+                    <select id="categorySelect" class="form-select custom-select" asp-for="Category_ID">
+                        @foreach (var ticket in (SelectList)ViewData["Categories"]!)
+                        {
+                            <option value="@ticket.Value">@ticket.Text</option>
+                        }
+                    </select>
+                    <span class="text-danger"></span>
+                </div>
+
+                <div class="text-center mb-4">
+                    <button class="btn btn-primary custom-button" type="submit">Submit</button>
+                </div>
+
+                @if (ViewData["Message"] != null)
+                {
+                    <div class="alert alert-@ViewData["MsgType"] alert-dismissible fade show" role="alert">
+                        @ViewData["Message"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+</body>
+</html>

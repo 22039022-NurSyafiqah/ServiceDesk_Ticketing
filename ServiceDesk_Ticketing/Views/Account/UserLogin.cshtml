@@ -9,7 +9,7 @@
         font-family: 'Georgia', sans-serif;
     }
 
-        .form-floating label {
+    .form-floating label {
         color: black;
     }
 
@@ -22,7 +22,7 @@
 
 <div class="row justify-content-center mt-5">
     <h2 class="text-center mb-5">Welcome to Service Desk Ticketing System!</h2>
-    
+
     <!-- Image Column -->
     <div class="col-md-5 text-center">
         <img src="~/images/helpdesk.png" class="img-fluid" alt="Helpdesk" />
@@ -30,44 +30,39 @@
 
 
     <!-- Card -->
-    <div class="card text-white bg-dark mb-5" style="max-width: 25rem; height: 340px;">
+    <div class="card text-white bg-dark mb-5" style="max-width: 25rem;">
         <div class="card-header text-center mt-3">
-            <h6>Please enter the following details: </h6>
+            <h6>Please enter the following details:</h6>
         </div>
-        
+
         <div class="card-body">
-            
-            <!-- Form -->
             <form method="post" asp-controller="Account" asp-action="Login">
 
                 <!-- Email -->
-                <!-- Using UserLogin.cshtml -->
                 <div class="mb-3 form-floating">
-                    <input asp-for="email" class="form-control" placeholder="" />
-                    <label asp-for="email">Email Address</label>
+                    <input asp-for="email" class="form-control" id="emailInput" placeholder="name@example.com" />
+                    <label for="emailInput">Email Address</label>
                     <span asp-validation-for="email" class="text-danger"></span>
                 </div>
 
                 <!-- Password -->
-                <!-- Using UserLogin.cshtml -->
                 <div class="mb-3 form-floating">
-                    <input asp-for="password" class="form-control" placeholder="" />
-                    <label asp-for="password">Password</label>
+                    <input asp-for="password" type="password" class="form-control" id="passwordInput" placeholder="Password" />
+                    <label for="passwordInput">Password</label>
                     <span asp-validation-for="password" class="text-danger"></span>
                 </div>
 
                 <!-- Danger alert -->
-                <!-- When incorrect email or password, it'll show this alert -->
-                <div class="mb-3 text-danger">@ViewData["Message"] </div>
-                
+                <div class="mb-3 text-danger text-center">@ViewData["Message"]</div>
+
                 <!-- Submit button -->
                 <div class="d-flex justify-content-center mb-3">
                     <button class="btn btn-primary" type="submit">Login</button>
                 </div>
 
             </form>
-
         </div>
     </div>
+
 </div>
 

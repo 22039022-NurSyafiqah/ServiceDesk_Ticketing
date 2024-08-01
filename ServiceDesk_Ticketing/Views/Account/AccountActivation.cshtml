@@ -101,54 +101,68 @@
         <div class="text-center mb-4">
             <h4>Account Activation for New Staff</h4>
         </div>
-        <form asp-action="SubmitAccountActivation" method="post">
+        <form asp-action="SubmitAccountActivation" asp-controller="Account" method="post">
+
+            <!-- Full Name -->
             <div class="mb-3">
-                <label asp-for="FullName" class="form-label">Full Name:</label>
-                <input asp-for="FullName" class="form-control" placeholder="Type here...">
-                <span asp-validation-for="FullName" class="text-danger"></span>
+                <label asp-for="NewAcc_NewStaffName" class="form-label">Full Name:</label>
+                <input asp-for="NewAcc_NewStaffName" class="form-control" placeholder="Type here...">
+                <span asp-validation-for="NewAcc_NewStaffName" class="text-danger"></span>
             </div>
+
+            <!-- NRIC (need mask) -->
             <div class="mb-3">
-                <label asp-for="Nric" class="form-label">NRIC:</label>
-                <input asp-for="Nric" class="form-control" placeholder="Type here...">
-                <span asp-validation-for="Nric" class="text-danger"></span>
+                <label asp-for="NewAcc_NewStaffNRIC" class="form-label">NRIC:</label>
+                <input asp-for="NewAcc_NewStaffNRIC" class="form-control" placeholder="Type here...">
+                <span asp-validation-for="NewAcc_NewStaffNRIC" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="EmploymentType" class="form-label">Employment Type:</label>
-                <select asp-for="EmploymentType" class="form-select">
-                    <option value="">Select</option>
-                    <option value="EO">EO</option>
-                    <option value="EAS">EAS</option>
-                    <option value="RT">RT</option>
-                    <option value="CAJT">CAJT</option>
-                    <option value="FAJT">FAJT</option>
-                    <option value="SL">SL</option>
-                    <option value="MK">MK</option>
-                    <option value="Support">Support</option>
+
+
+            <!-- Employment Type (Drop down List) -->
+            <div class="col-3 mb-3 form-floating">
+                <select class="form-select" asp-for="EmpID">
+                    @foreach (var item in (SelectList)ViewData["Employment"]!)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
                 </select>
-                <span asp-validation-for="EmploymentType" class="text-danger"></span>
+                <label>Employment Type</label>
+                <span labelclass="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="AppRequired" class="form-label">App Required:</label>
-                <select asp-for="AppRequired" class="form-select">
-                    <option value="">Select</option>
-                    <option value="CES">CES</option>
-                    <option value="ICON">ICON</option>
-                    <option value="VPN">VPN</option>
-                    <option value="SLS">SLS</option>
-                    <option value="ScMobile">ScMobile</option>
-                    <option value="RBS">RBS</option>
+
+            <!-- Application Type -->
+            <div class="col-3 mb-3 form-floating">
+                
+                <select class="form-select" asp-for="AppReqID">
+                    @foreach (var item in (SelectList)ViewData["Application"]!)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
                 </select>
-                <span asp-validation-for="AppRequired" class="text-danger"></span>
+                <label>Application Type</label>
+                <span labelclass="text-danger"></span>
             </div>
+
+            <!-- Start Date -->
             <div class="mb-3">
-                <label asp-for="StartDate" class="form-label">Start Date:</label>
-                <input asp-for="StartDate" class="form-control">
-                <span asp-validation-for="StartDate" class="text-danger"></span>
+                <label asp-for="NewAcc_StartDate" class="form-label">Start Date:</label>
+                <input asp-for="NewAcc_StartDate" class="form-control">
+                <span asp-validation-for="NewAcc_StartDate" class="text-danger"></span>
             </div>
+
             <button type="submit" class="btn btn-primary w-100">Submit</button>
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-@TempData["MsgType"]">
+                    @TempData["Message"]
+                </div>
+            }
+
+
         </form>
         <div class="text-center mt-4">
-            <a href="@Url.Action("Index", "Home")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
+            <a href="@Url.Action("CreateTicket", "TicketRequest")" style="display: inline-block; margin-top: 20px;">Back to Create Ticket</a>
         </div>
     </div>
 

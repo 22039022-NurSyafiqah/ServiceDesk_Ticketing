@@ -658,8 +658,6 @@ namespace ServiceDesk_Ticketing.Controllers
                     }
                 }
             }
-
-            // Logging the data
             foreach (var entry in data)
             {
                 Console.WriteLine($"Month: {entry.Month}, MonthNumber: {entry.MonthNumber}");

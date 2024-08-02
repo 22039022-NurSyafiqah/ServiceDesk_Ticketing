@@ -13,6 +13,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Forbidden/";
     });
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

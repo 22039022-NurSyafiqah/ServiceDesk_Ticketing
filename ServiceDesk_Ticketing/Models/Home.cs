@@ -17,7 +17,7 @@ namespace ServiceDesk_Ticketing.Models
         [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
         public string StickerTag { get; set; } = null!;
 
-        [Required(ErrorMessage = "Enter the Sticker Tag")]
+        [Required(ErrorMessage = "Enter the Serial Number")]
         [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
         public string SerialNumber { get; set; } = null!;
 
@@ -78,6 +78,8 @@ namespace ServiceDesk_Ticketing.Models
         [Required(ErrorMessage = "Enter the start date")]
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
+
+
 
         // New fields for Request for Equipment
         [Required(ErrorMessage = "Select at least one equipment")]
@@ -218,28 +220,35 @@ namespace ServiceDesk_Ticketing.Models
         [Required(ErrorMessage = "Select the equipment needed")]
         public List<string> EquipmentNeeded { get; set; } = new List<string>();
 
-        [Required(ErrorMessage = "Please select Equipment Type.")]
+        [Required(ErrorMessage = "Please select Equipment Type")]
         public string EquipmentReqType { get; set; } = null!;
 
+
+
+
         // New fields for Account Activation for New Staff
-        [Required(ErrorMessage = "Enter the Full Name")]
+        public int AccID { get; set; }
+
+
+        [Required(ErrorMessage = "Enter your Full Name")]
         [StringLength(100, ErrorMessage = "Maximum is 100 characters")]
         public string NewAcc_NewStaffName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Enter the NRIC Number")]
-        [StringLength(20, ErrorMessage = "Maximum is 20 characters")]
+        [Required(ErrorMessage = "Enter your NRIC Number")]
+        [StringLength(9, ErrorMessage = "Maximum is 9 characters")]
+        [RegularExpression(@"^[STFG]\d{7}[A-Z]$", ErrorMessage = "NRIC number must start with 'S', 'T', 'F', or 'G', followed by 7 digits, and end with an alphabetic character.")]
         [DataType(DataType.Password)]
         public string NewAcc_NewStaffNRIC { get; set; } = null!;
 
         public int EmpID { get; set; }
 
-        public string? Emp_Type { get; set; } = null;
+        public string Emp_Type { get; set; } = null!;
 
 
         [Required(ErrorMessage = "Select the Application Required")]
         public int AppReqID { get; set; }
 
-        public string? AppName { get; set; } = null;
+        public string AppName { get; set; } = null!;
 
 
         [Required(ErrorMessage = "Enter the Start Date")]

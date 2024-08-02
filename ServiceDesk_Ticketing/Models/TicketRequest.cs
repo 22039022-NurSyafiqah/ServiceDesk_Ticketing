@@ -20,7 +20,6 @@ public class TicketRequest
 
     [Required(ErrorMessage = "Enter the End Date")]
     [DataType(DataType.Date)]
-
     public DateTime TicketLastUpdated { get; set; }
 
     [Required]
@@ -36,4 +35,8 @@ public class TicketRequest
 
     [Required]
     public string Category_Name { get; set; } = null!;
+
+
+
+
 }

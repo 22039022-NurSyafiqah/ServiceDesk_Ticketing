@@ -197,7 +197,7 @@ public class AccountController : Controller
 
             // Adjust the SQL query to include EmployType and AppType
             string sql = @"
-        INSERT INTO AccountAcc (EmpID, AppReqID, Category_ID, NewAcc_NewStaffName, NewAcc_NewStaffNRIC, NewAcc_StartDate)
+        INSERT INTO AccountActivation (EmpID, AppReqID, Category_ID, NewAcc_NewStaffName, NewAcc_NewStaffNRIC, NewAcc_StartDate)
         VALUES (@EmpID, @AppReqID, @Category_ID, @NewAcc_NewStaffName, @NewAcc_NewStaffNRIC, @NewAcc_StartDate)";
 
             using (var command = new SqlCommand(sql, connection))
@@ -285,32 +285,125 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
         {
             return View("Create", user);
-
         }
         else
         {
+            bool isDuplicate = false;
+
+            // Check for duplicate FullName
+            string checkFullNameSql = @"
+            SELECT COUNT(*) 
+            FROM SysUser 
+            WHERE FullName = @FullName";
+
+            using (var checkConnection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                checkConnection.Open();
+                using (var checkCommand = new SqlCommand(checkFullNameSql, checkConnection))
+                {
+                    checkCommand.Parameters.AddWithValue("@FullName", user.FullName);
+                    int count = (int)checkCommand.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        ViewData["Message"] = "A user with the same Full Name already exists.";
+                        ViewData["MsgType"] = "danger";
+                        isDuplicate = true;
+                        return View("Create", user);
+                    }
+                }
+            }
+
+            // Check for duplicate PhoneNumber
+            string checkPhoneNumberSql = @"
+            SELECT COUNT(*) 
+            FROM SysUser 
+            WHERE PhoneNumber = @PhoneNumber";
+
+            using (var checkConnection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                checkConnection.Open();
+                using (var checkCommand = new SqlCommand(checkPhoneNumberSql, checkConnection))
+                {
+                    checkCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+                    int count = (int)checkCommand.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        ViewData["Message"] = "A user with the same Phone Number already exists.";
+                        ViewData["MsgType"] = "danger";
+                        isDuplicate = true;
+                        return View("Create", user);
+                    }
+                }
+            }
+
+            // Check for duplicate IC_num
+            string checkICNumSql = @"
+            SELECT COUNT(*) 
+            FROM SysUser 
+            WHERE IC_num = @IC_num";
+
+            using (var checkConnection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                checkConnection.Open();
+                using (var checkCommand = new SqlCommand(checkICNumSql, checkConnection))
+                {
+                    checkCommand.Parameters.AddWithValue("@IC_num", user.IC_num);
+                    int count = (int)checkCommand.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        ViewData["Message"] = "A user with the same NRIC (IC_num) already exists.";
+                        ViewData["MsgType"] = "danger";
+                        isDuplicate = true;
+                        return View("Create", user);
+                    }
+                }
+            }
+
+            if (isDuplicate)
+            {
+                return View("Create", user);
+            }
+
             // Ensure Status is set to false
             user.IsActive = false;
 
-
             string insert =
                 @"INSERT INTO SysUser (User_Role_Name, FullName, IC_num, PhoneNumber, EmailAddress, UserPw, IsActive) 
-              VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', HASHBYTES('SHA1', '{5}'), '{6}')";
+              VALUES (@User_Role_Name, @FullName, @IC_num, @PhoneNumber, @EmailAddress, HASHBYTES('SHA1', @UserPw), @IsActive)";
 
-            if (DBUtl.ExecSQL(insert, user.User_Role_Name, user.FullName, user.IC_num, user.PhoneNumber, user.EmailAddress, user.UserPw, user.IsActive) == 1)
+            using (var insertConnection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
+                insertConnection.Open();
+                using (var insertCommand = new SqlCommand(insert, insertConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@User_Role_Name", user.User_Role_Name);
+                    insertCommand.Parameters.AddWithValue("@FullName", user.FullName);
+                    insertCommand.Parameters.AddWithValue("@IC_num", user.IC_num);
+                    insertCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+                    insertCommand.Parameters.AddWithValue("@EmailAddress", user.EmailAddress);
+                    insertCommand.Parameters.AddWithValue("@UserPw", user.UserPw);
+                    insertCommand.Parameters.AddWithValue("@IsActive", user.IsActive);
 
-                ViewData["Message"] = "User successfully registered!";
-                ViewData["MsgType"] = "success";
+                    int res = insertCommand.ExecuteNonQuery();
+
+                    if (res == 1)
+                    {
+                        ViewData["Message"] = "User successfully registered!";
+                        ViewData["MsgType"] = "success";
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "User is not added.";
+                        ViewData["MsgType"] = "danger";
+                    }
+                }
             }
-            else
-            {
-                ViewData["Message"] = "User is not added.";
-                ViewData["MsgType"] = "danger";
-            }
+
             return View("Create");
         }
     }
+
+
 
     private static SelectList GetListUser()
     {
@@ -360,8 +453,8 @@ public class AccountController : Controller
         string role = form["User_Role_Name"].ToString().Trim();
         string phone = form["PhoneNumber"].ToString().Trim();
 
-        // Check if phone number is empty or not exactly 8 digits
-        if (string.IsNullOrEmpty(phone) || phone.Length != 8 || !phone.All(char.IsDigit))
+        // Check if phone number is empty, not exactly 8 digits, contains non-digit characters, or doesn't start with 8 or 9
+        if (string.IsNullOrEmpty(phone) || phone.Length != 8 || !phone.All(char.IsDigit) || !(phone[0] == '8' || phone[0] == '9'))
         {
             // Retrieve existing user data to repopulate the form
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
@@ -386,9 +479,12 @@ public class AccountController : Controller
                                 PhoneNumber = reader["PhoneNumber"].ToString() // Display existing phone number
                             };
 
+                            // Provide detailed error messages based on validation
                             ViewData["Message"] = string.IsNullOrEmpty(phone)
                                 ? "Phone number cannot be empty. Please update it."
-                                : "Phone number must be exactly 8 digits.";
+                                : (phone.Length != 8 ? "Phone number must be exactly 8 digits."
+                                  : (!phone.All(char.IsDigit) ? "Phone number must contain only digits."
+                                  : "Phone number must start with 8 or 9."));
                             ViewData["MsgType"] = "danger";
 
                             // Pass existing user data back to the view
@@ -405,7 +501,58 @@ public class AccountController : Controller
             }
         }
 
-        // Proceed with update if phone number is valid
+        // Check for duplicate phone number
+        string checkDuplicateSql = @"SELECT COUNT(*) FROM SysUser WHERE PhoneNumber = @PhoneNumber AND User_ID != @User_ID";
+        using (var checkConnection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+        {
+            checkConnection.Open();
+            using (var checkCommand = new SqlCommand(checkDuplicateSql, checkConnection))
+            {
+                checkCommand.Parameters.AddWithValue("@PhoneNumber", phone);
+                checkCommand.Parameters.AddWithValue("@User_ID", userID);
+
+                int count = (int)checkCommand.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    // Phone number already exists for another user
+                    string select = @"SELECT * FROM SysUser WHERE User_ID = @User_ID";
+                    using (var selectCommand = new SqlCommand(select, checkConnection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@User_ID", userID);
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                SysUser existingUser = new SysUser
+                                {
+                                    User_ID = userID,
+                                    FullName = reader["FullName"].ToString(),
+                                    IC_num = reader["IC_num"].ToString(),
+                                    EmailAddress = reader["EmailAddress"].ToString(),
+                                    User_Role_Name = reader["User_Role_Name"].ToString(),
+                                    PhoneNumber = reader["PhoneNumber"].ToString() // Display existing phone number
+                                };
+
+                                ViewData["Message"] = "Phone number already in use. Please choose a different one.";
+                                ViewData["MsgType"] = "danger";
+
+                                // Pass existing user data back to the view
+                                return View("EditAccount", existingUser);
+                            }
+                            else
+                            {
+                                ViewData["Message"] = "User not found.";
+                                ViewData["MsgType"] = "danger";
+                                return View("Users");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Proceed with update if phone number is valid and unique
         string updateConnectionString = _configuration.GetConnectionString("DefaultConnection");
         using (var updateConnection = new SqlConnection(updateConnectionString))
         {
@@ -467,6 +614,8 @@ public class AccountController : Controller
             }
         }
     }
+
+
 
 
 

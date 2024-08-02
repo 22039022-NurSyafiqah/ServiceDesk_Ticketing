@@ -95,7 +95,7 @@ namespace ServiceDesk_Ticketing.Models
         public string ReasonForRequest { get; set; } = null!;
 
         // New fields for Facebook Post Session
-        [Required(ErrorMessage = "Select up to 15 pictures")]
+        [Required(ErrorMessage = "Select picture/compiled document to upload")]
         public List<IFormFile> Photos { get; set; } = new List<IFormFile>();
 
         [Required(ErrorMessage = "Enter a caption for each photo")]

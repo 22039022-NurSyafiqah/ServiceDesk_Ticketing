@@ -70,24 +70,106 @@
 </style>
 </head>
 
-<h4>Total Number of Tickets for Each Month</h4>
+<style>
+    .title-underline {
+        text-decoration: underline;
+        text-decoration-color: #000; 
+    }
+</style>
+
+
+
+
+<style>
+    .title-underline {
+        text-decoration: underline;
+        text-decoration-color: #000;
+    }
+
+    .summary-table {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+
+        .summary-table th, .summary-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .summary-table th {
+            background-color: #f9f9f9;
+        }
+</style>
+
+<div class="text-center mb-4">
+    <h2 class="title-underline">Ticket Request Report</h2>
+</div>
+
+
+<!-- Summary Table -->
+<table class="summary-table">
+    <tr>
+        <th>Total Number of Tickets Created:</th>
+        <td>@ViewBag.TotalTicketsCreated</td>
+    </tr>
+    <tr>
+        <th>Total Number of Tickets Created This Month:</th>
+        <td>@ViewBag.TotalTicketsCreatedThisMonth</td>
+    </tr>
+    <tr>
+        <th>Average Resolution Time to Solve Tickets (days):</th>
+        <td>@ViewBag.AverageResolutionTime</td>
+    </tr>
+</table>
+
+
+<div class="text-center mb-4">
+    <h5>Total Number of Tickets for Each Month</h5>
+</div>
+
 
 <div class="chart-container">
     <canvas id="barChart"></canvas>
 </div>
 
-<h4>Ticket Category Comparison</h4>
+
+
+<div class="text-center mb-4">
+    <h5>Ticket Category Comparison</h5>
+</div>
+
 
 <div class="chart-container">
     <canvas id="lineChart"></canvas>
 </div>
 
+<div class="text-center mb-4">
+    <h5>Statistics of Ticket Status</h5>
+</div>
 
-<h4>Statistics of Ticket Status</h4>
 
 <div class="chart-container">
 
     <canvas id="pieChart"></canvas>
+</div>
+
+<div class="text-center mb-4">
+    <h5>Monthly Ticket Resolution Rate</h5>
+</div>
+
+<div class="chart-container">
+    <canvas id="resolutionRateChart"></canvas>
+</div>
+
+<div class="text-center mb-4">
+    <h5>Average Time to Resolve Tickets</h5>
+</div>
+
+<div class="chart-container">
+    <canvas id="averageResolutionTimeChart"></canvas>
 </div>
 
 @section Scripts {
@@ -100,12 +182,16 @@
         var barChartData = @Html.Raw(ViewBag.BarChartData);
         var lineChartData = @Html.Raw(ViewBag.LineChartData);
         var pieChartData = @Html.Raw(ViewBag.PieChartData);
+        var resolutionRateData = @Html.Raw(ViewBag.ResolutionRateData);
+        var averageResolutionTimeData = @Html.Raw(ViewBag.AverageResolutionTimeData);
 
         console.log("Bar Chart Data:", barChartData);
         console.log("Line Chart Data:", lineChartData);
         console.log("Pie Chart Data:", pieChartData);
+        console.log("Resolution Rate Data:", resolutionRateData); 
+        console.log("Average Resolution Time Data:", averageResolutionTimeData);
 
-        // Bar Chart
+        // Bar Chart ~~~~~~~~~~~~~~~~~~~~
         var ctxBar = document.getElementById('barChart').getContext('2d');
         var barChart = new Chart(ctxBar, {
             type: 'bar',
@@ -135,7 +221,7 @@
 
 
 
-        // Line Chart
+        // Line Chart ~~~~~~~~~~~~~~~~~~~
         var ctxLine = document.getElementById('lineChart').getContext('2d');
         var lineChartLabels = lineChartData.map(d => d.Month);
         var lineChartDatasets = [];
@@ -228,6 +314,94 @@
                 maintainAspectRatio: false
             }
         });
+
+        // Monthly Ticket Resolution Rate ~~~~~~~~~~~~~~~~~~
+        function getMonthIndex(dateStr) {
+            return parseInt(dateStr.split('-')[1], 10) - 1; 
+        }
+
+        // Function to convert "yyyy-mm" to month names
+        function formatMonthLabels(dateStr) {
+            const monthIndex = getMonthIndex(dateStr);
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            return months[monthIndex]; // Return the month name
+        }
+
+        // Sort the data by month index
+        resolutionRateData.sort((a, b) => getMonthIndex(a.Month) - getMonthIndex(b.Month));
+
+        // Format month labels
+        var resolutionRateLabels = resolutionRateData.map(d => formatMonthLabels(d.Month));
+        var resolutionRateValues = resolutionRateData.map(d => d.ResolutionRate);
+
+        var ctxResolutionRate = document.getElementById('resolutionRateChart').getContext('2d');
+
+        var resolutionRateChart = new Chart(ctxResolutionRate, {
+            type: 'line',
+            data: {
+                labels: resolutionRateLabels, 
+                datasets: [{
+                    label: 'Resolution Rate (%)',
+                    data: resolutionRateValues, // Data for y-axis
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                           
+                        },
+                        ticks: {
+                            autoSkip: false // To avoid skipping labels
+                        }
+                    }
+                }
+            }
+        });
+
+        // Average Resolution Time Chart
+        var ctxAverageResolutionTime = document.getElementById('averageResolutionTimeChart').getContext('2d');
+        var averageResolutionTimeChart = new Chart(ctxAverageResolutionTime, {
+            type: 'bar',
+            data: {
+                labels: averageResolutionTimeData.map(d => d.Label),
+                datasets: [{
+                    label: 'Average Time (days)',
+                    data: averageResolutionTimeData.map(d => d.AverageTime),
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
     </script>
 }
 

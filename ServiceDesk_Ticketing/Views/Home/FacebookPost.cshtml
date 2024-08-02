@@ -95,7 +95,7 @@
         </div>
         <form asp-action="SubmitFacebookPost" method="post" asp-controller="Home" enctype="multipart/form-data">
             <div class="mb-3">
-                <label asp-for="Photos" class="form-label">Select your pictures (max 15):</label>
+                <label asp-for="Photos" class="form-label">Select your pictures (if there is more than 1, compile and submit as a document):</label>
                 <input asp-for="Photos" class="form-control" type="file" multiple>
                 <span asp-validation-for="Photos" class="text-danger"></span>
             </div>

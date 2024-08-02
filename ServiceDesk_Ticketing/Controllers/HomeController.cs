@@ -163,6 +163,7 @@ namespace ServiceDesk_Ticketing.Controllers
                 {
 
                     int categoryId = 1; // Assuming Category ID for "Fault Reporting"
+
                     Command.Parameters.AddWithValue("@Category_ID", categoryId);
                     Command.Parameters.AddWithValue("@FaultReport_Equipment", equipType);
                     Command.Parameters.AddWithValue("@FaultReport_Description", description);
@@ -205,6 +206,7 @@ namespace ServiceDesk_Ticketing.Controllers
             DateTime incidentDate = DateTime.Parse(form["DateOfIssue"].ToString().Trim());
             TimeSpan incidentTime = TimeSpan.Parse(form["TimeOfIssue"].ToString().Trim());
             string classroomVenue = form["Venue"].ToString().Trim();
+            int assetId = 2; // Replace with the appropriate logic to get the correct AssetID
 
             byte[] photoBytes = null;
             if (photo != null && photo.Length > 0)
@@ -224,15 +226,16 @@ namespace ServiceDesk_Ticketing.Controllers
 
                 string sql = @"
                  INSERT INTO FaultReport 
-                 (Category_ID, FaultReport_IncidentTime, FaultReport_Equipment,FaultReport_Description, FaultReport_StickerTag, FaultReport_SerialNumber, FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
-                 VALUES  (@Category_ID, @FaultReport_IncidentTime, @FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag, @FaultReport_SerialNumber,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
+                 (AssetID, Category_ID, FaultReport_IncidentTime, FaultReport_Equipment,FaultReport_Description, FaultReport_StickerTag, FaultReport_SerialNumber, FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
+                 VALUES  (@AssetID, @Category_ID, @FaultReport_IncidentTime, @FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag, @FaultReport_SerialNumber,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
 
                 using (var Command = new SqlCommand(sql, connection))
                 {
 
-                    int categoryId = 2; // Assuming Category ID for "IT Service/Support Request-Printing Quota"
+                    int categoryId = 2; 
 
                     Command.Parameters.AddWithValue("@Category_ID", categoryId);
+                    Command.Parameters.AddWithValue("@AssetID", assetId);
                     Command.Parameters.AddWithValue("@FaultReport_Equipment", equipType);
                     Command.Parameters.AddWithValue("@FaultReport_Description", description);
                     Command.Parameters.AddWithValue("@FaultReport_StickerTag", stickerTag);
@@ -502,13 +505,81 @@ namespace ServiceDesk_Ticketing.Controllers
             var barChartData = GetMonthlyTicketData();
             var lineChartData = GetMonthlyResolvedData();
             var pieChartData = GetTicketStatusData();
+            var resolutionRateData = GetResolutionRateData();
+            var averageResolutionTimeData = GetAverageResolutionTimeData();
+            var totalTicketsCreated = GetTotalTicketsCreated();
+            var totalTicketsCreatedThisMonth = GetTotalTicketsCreatedThisMonth();
+            var averageResolutionTime = GetAverageResolutionTime();
 
             ViewBag.BarChartData = JsonConvert.SerializeObject(barChartData.OrderBy(x => x.MonthNumber));
             ViewBag.LineChartData = JsonConvert.SerializeObject(lineChartData.OrderBy(x => x.MonthNumber));
             ViewBag.PieChartData = JsonConvert.SerializeObject(pieChartData);
+            ViewBag.ResolutionRateData = JsonConvert.SerializeObject(resolutionRateData.OrderBy(x => x.Month));
+            ViewBag.AverageResolutionTimeData = JsonConvert.SerializeObject(averageResolutionTimeData.OrderBy(x => x.Label));
+            ViewBag.TotalTicketsCreated = totalTicketsCreated;
+            ViewBag.TotalTicketsCreatedThisMonth = totalTicketsCreatedThisMonth;
+            ViewBag.AverageResolutionTime = averageResolutionTime;
+
 
             return View();
         }
+
+
+
+        private int GetTotalTicketsCreated()
+        {
+            int totalTickets = 0;
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = "SELECT COUNT(*) AS Total FROM TicketRequest";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    totalTickets = (int)command.ExecuteScalar();
+                }
+            }
+            return totalTickets;
+        }
+
+        private int GetTotalTicketsCreatedThisMonth()
+        {
+            int totalTicketsThisMonth = 0;
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"SELECT COUNT(*) AS Total FROM TicketRequest 
+                           WHERE MONTH(Ticket_StartDate) = MONTH(GETDATE()) 
+                           AND YEAR(Ticket_StartDate) = YEAR(GETDATE())";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    totalTicketsThisMonth = (int)command.ExecuteScalar();
+                }
+            }
+            return totalTicketsThisMonth;
+        }
+
+        private double GetAverageResolutionTime()
+        {
+            double averageResolutionTime = 0;
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"SELECT AVG(DATEDIFF(day, Ticket_StartDate, TicketLastUpdated)) AS AverageTime 
+                           FROM TicketRequest";
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    averageResolutionTime = Convert.ToDouble(command.ExecuteScalar());
+                }
+            }
+            return averageResolutionTime;
+        }
+
 
         // Retrieving Data for Bar Chart
         private List<ChartData> GetMonthlyTicketData()
@@ -636,6 +707,85 @@ namespace ServiceDesk_Ticketing.Controllers
             return data;
         }
 
+        private List<ResolutionRateData> GetResolutionRateData()
+        {
+            var data = new List<ResolutionRateData>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"
+            SELECT 
+                MONTH(Ticket_StartDate) AS Month, 
+                YEAR(Ticket_StartDate) AS Year, 
+                COUNT(*) AS TotalTickets,
+                SUM(CASE WHEN TicketStatus_ID = 2 THEN 1 ELSE 0 END) AS ResolvedTickets
+            FROM TicketRequest
+            GROUP BY YEAR(Ticket_StartDate), MONTH(Ticket_StartDate)";
+
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var month = (int)reader["Month"];
+                            var year = (int)reader["Year"];
+                            var totalTickets = (int)reader["TotalTickets"];
+                            var resolvedTickets = (int)reader["ResolvedTickets"];
+                            var resolutionRate = (resolvedTickets / (double)totalTickets) * 100;
+
+                            data.Add(new ResolutionRateData
+                            {
+                                Month = $"{year}-{month}",
+                                ResolutionRate = (int)resolutionRate
+                            });
+                        }
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        private List<AverageResolutionTimeData> GetAverageResolutionTimeData()
+        {
+            var data = new List<AverageResolutionTimeData>();
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"
+            SELECT 
+                c.Category_Name AS Label, 
+                AVG(DATEDIFF(day, Ticket_StartDate, TicketLastUpdated)) AS AverageTime
+            FROM TicketRequest tr
+            JOIN Category c ON tr.Category_ID = c.Category_ID
+            GROUP BY c.Category_Name";
+
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            data.Add(new AverageResolutionTimeData
+                            {
+                                Label = reader["Label"].ToString(),
+                                AverageTime = (int)reader["AverageTime"]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return data;
+        }
+
+
+
         private string GetMonthName(int month)
         {
             return System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month);
@@ -661,10 +811,21 @@ namespace ServiceDesk_Ticketing.Controllers
             public int Count { get; set; }
         }
 
+    public class ResolutionRateData
+    {
+        public string Month { get; set; }
+        public int ResolutionRate { get; set; }
+    }
+
+    public class AverageResolutionTimeData
+    {
+        public string Label { get; set; }
+        public int AverageTime { get; set; }
+    }
 
 
 
-        [HttpGet]
+    [HttpGet]
         public IActionResult PrintingQuota()
         {
             return View();

@@ -175,7 +175,6 @@
                 </div>
 
 
-
                 <div class="mb-3">
                     <label asp-for="EventIncharge" class="form-label">Event Incharge:</label>
                     <input asp-for="EventIncharge" class="form-control" placeholder="Type here...">
@@ -185,24 +184,24 @@
                     <label class="form-label">Any Rehearsal?</label>
                     <div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="Yes">
+                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="Yes" id="anyRehearsalYes" onclick="toggleRehearsalFields(true)">
                             <label class="form-check-label" for="anyRehearsalYes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="No">
+                            <input class="form-check-input" type="radio" asp-for="AnyRehearsal" value="No" id="anyRehearsalNo" onclick="toggleRehearsalFields(false)">
                             <label class="form-check-label" for="anyRehearsalNo">No</label>
                         </div>
                     </div>
                     <span asp-validation-for="AnyRehearsal" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="rehearsalFields" style="display:none;">
                     <label asp-for="DateOfRehearsal" class="form-label">Date of Rehearsal:</label>
                     <input asp-for="DateOfRehearsal" class="form-control">
                     <span asp-validation-for="DateOfRehearsal" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="rehearsalFieldsTime" style="display:none;">
                     <label asp-for="TimeOfRehearsal" class="form-label">Time of Rehearsal:</label>
-                    <input asp-for="TimeOfRehearsal" class="form-control" type="time" />
+                    <input asp-for="TimeOfRehearsal" class="form-control" placeholder="Type here...">
                     <span asp-validation-for="TimeOfRehearsal" class="text-danger"></span>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
@@ -223,6 +222,8 @@
                             <input class="form-check-input" type="radio" id="ictEventType2" name="ICTEventType" value="National">
                             <label class="form-check-label" for="ictEventType2">National</label>
                         </div>
+
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Primary Level:</label>
@@ -322,6 +323,16 @@
             document.getElementById('eventForm').style.display = 'none';
             document.getElementById('ictForm').style.display = 'none';
             document.getElementById(formId).style.display = 'block';
+        }
+
+        function toggleRehearsalFields(show) {
+            if (show) {
+                document.getElementById('rehearsalFields').style.display = 'block';
+                document.getElementById('rehearsalFieldsTime').style.display = 'block';
+            } else {
+                document.getElementById('rehearsalFields').style.display = 'none';
+                document.getElementById('rehearsalFieldsTime').style.display = 'none';
+            }
         }
     </script>
     <partial name="_ValidationScriptsPartial" />

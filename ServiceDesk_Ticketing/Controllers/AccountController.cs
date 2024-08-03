@@ -185,9 +185,14 @@ public class AccountController : Controller
 
         if (!userExists)
         {
-            TempData["Message"] = "Full name or NRIC doesn't exist in the database. Please contact ICT Team.";
-            TempData["MsgType"] = "warning";
-            return RedirectToAction("AccountActivation", "Account");
+            ViewData["Message"] = "Full name or NRIC doesn't exist in the database. Please contact ICT Team.";
+            ViewData["MsgType"] = "warning";
+
+            // Repopulate ViewData lists for the dropdowns
+            ViewData["Application"] = GetListApplication();
+            ViewData["Employment"] = GetListEmployment();
+
+            return View("AccountActivation");
         }
 
         // If user does not exist, proceed with insertion

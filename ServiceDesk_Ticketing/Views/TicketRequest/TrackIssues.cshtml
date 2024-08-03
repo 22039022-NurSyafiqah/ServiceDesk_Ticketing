@@ -53,13 +53,7 @@
 <div class="my-3 ticket-header">
     <h2 class="ticket-title">Track Issues</h2>
 </div>
-
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-@TempData["MsgType"]">
-        @TempData["Message"]
-    </div>
-}
+2
 
 <div class="table-responsive">
     <table id="jsTicketIssuesTable" class="table table-striped table-bordered table-hover" style="padding-top: 20px;">
@@ -67,7 +61,7 @@
             <tr>
                 <th class="center-text">Ticket ID</th>
                 <th class="center-text">Category Name</th>
-                <th class="center-text">Ticket Status</th>
+                <th class="center-text">Current Ticket Status</th>
                 <th class="center-text">Ticket Created</th>
             </tr>
         </thead>

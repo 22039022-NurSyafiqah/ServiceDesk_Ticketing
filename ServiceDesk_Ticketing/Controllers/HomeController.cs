@@ -176,8 +176,8 @@ namespace ServiceDesk_Ticketing.Controllers
                     int res = Command.ExecuteNonQuery();
                     if (res == 1)
                     {
-                        TempData["Message"] = "Fault Report Added";
-                        TempData["MsgType"] = "Success";
+                        TempData["Message"] = "Fault Report just Added";
+                        TempData["MsgType"] = "success";
                         return RedirectToAction("Submission", "Home");
                     }
                     else
@@ -206,7 +206,6 @@ namespace ServiceDesk_Ticketing.Controllers
             DateTime incidentDate = DateTime.Parse(form["DateOfIssue"].ToString().Trim());
             TimeSpan incidentTime = TimeSpan.Parse(form["TimeOfIssue"].ToString().Trim());
             string classroomVenue = form["Venue"].ToString().Trim();
-            int assetId = 2; // Replace with the appropriate logic to get the correct AssetID
 
             byte[] photoBytes = null;
             if (photo != null && photo.Length > 0)
@@ -226,8 +225,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
                 string sql = @"
                  INSERT INTO FaultReport 
-                 (AssetID, Category_ID, FaultReport_IncidentTime, FaultReport_Equipment,FaultReport_Description, FaultReport_StickerTag, FaultReport_SerialNumber, FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
-                 VALUES  (@AssetID, @Category_ID, @FaultReport_IncidentTime, @FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag, @FaultReport_SerialNumber,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
+                 (Category_ID, FaultReport_IncidentTime, FaultReport_Equipment,FaultReport_Description, FaultReport_StickerTag, FaultReport_SerialNumber, FaultReport_IncidentDate, FaultReport_ClassroomVenue, FaultReport_AnyPhoto)
+                 VALUES  (@Category_ID, @FaultReport_IncidentTime, @FaultReport_Equipment, @FaultReport_Description, @FaultReport_StickerTag, @FaultReport_SerialNumber,@FaultReport_IncidentDate, @FaultReport_ClassroomVenue, @FaultReport_AnyPhoto)";
 
                 using (var Command = new SqlCommand(sql, connection))
                 {
@@ -235,7 +234,6 @@ namespace ServiceDesk_Ticketing.Controllers
                     int categoryId = 2; 
 
                     Command.Parameters.AddWithValue("@Category_ID", categoryId);
-                    Command.Parameters.AddWithValue("@AssetID", assetId);
                     Command.Parameters.AddWithValue("@FaultReport_Equipment", equipType);
                     Command.Parameters.AddWithValue("@FaultReport_Description", description);
                     Command.Parameters.AddWithValue("@FaultReport_StickerTag", stickerTag);
@@ -249,8 +247,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "Fault Report Added";
-                        TempData["MsgType"] = "Success";
+                        TempData["Message"] = "Fault Report just Added";
+                        TempData["MsgType"] = "success";
                         return RedirectToAction("Submission", "Home");
                     }
                     else
@@ -298,12 +296,12 @@ namespace ServiceDesk_Ticketing.Controllers
                 connection.Open();
                 string sql = @"
                 INSERT INTO EventSupport (AssetID, SupportType, EventCategory, EventRehearsal_Date, EventRehearsal_Time, Name, Time, Venue, InCharge, Category_ID)
-                VALUES (@AssetID, @SupportType, @EventCategory, @EventRehearsal_Date, @EventRehearsal_Time, @Name, @Time, @Venue, @InCharge, @Category_ID)";
+                VALUES (@AssetID, 'Event', @EventCategory, @EventRehearsal_Date, @EventRehearsal_Time, @Name, @Time, @Venue, @InCharge, @Category_ID)";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@AssetID", assetId);
-                    command.Parameters.AddWithValue("@SupportType", supportType);
+                    
                     command.Parameters.AddWithValue("@EventCategory", eventSupportType);
                     command.Parameters.AddWithValue("@EventRehearsal_Date", (object)rehearsalDate ?? DBNull.Value);
                     command.Parameters.AddWithValue("@EventRehearsal_Time", rehearsalTime);
@@ -317,7 +315,7 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "Event Support Request Added";
+                        TempData["Message"] = "Event Support Request just Added!";
                         TempData["MsgType"] = "Success";
                         return RedirectToAction("Submission", "Home");
                     }
@@ -353,7 +351,6 @@ namespace ServiceDesk_Ticketing.Controllers
                 connection.Open();
                 string sql = @"
         INSERT INTO EquipmentRequest (Category_ID, EquipmentReqType, EquipmentVenue, ReasonForRequest, CreatedBy)
-        OUTPUT INSERTED.EquipReqID -- Change this to your actual primary key column
         VALUES (@Category_ID, @EquipmentReqType, @EquipmentVenue, @ReasonForRequest, @CreatedBy)";
 
                 using (var command = new SqlCommand(sql, connection))
@@ -366,18 +363,19 @@ namespace ServiceDesk_Ticketing.Controllers
                     command.Parameters.AddWithValue("@ReasonForRequest", equipReason);
                     command.Parameters.AddWithValue("@CreatedBy", createdBy);
 
-                    var result = command.ExecuteScalar();
-                    if (result != null)
-                    {
-                        int requestId = Convert.ToInt32(result);
+                    int res = command.ExecuteNonQuery();
 
-                        return RedirectToAction("Submission", new { id = requestId });
+                    if (res == 1)
+                    {
+                        TempData["Message"] = "Request for Equipment just Added";
+                        TempData["MsgType"] = "success";
+                        return RedirectToAction("Submission", "Home");
                     }
                     else
                     {
-                        TempData["Message"] = "Error adding Request for Equipment";
+                        TempData["Message"] = "Error adding Equipment Request";
                         TempData["MsgType"] = "Error";
-                        return RedirectToAction("Index");
+                        return RedirectToAction("Index", "Home");
                     }
                 }
             }
@@ -392,9 +390,8 @@ namespace ServiceDesk_Ticketing.Controllers
         public ActionResult SubmitAppInstallation(IFormCollection form)
         {
             string applicationName = form["ApplicationName"].ToString().Trim();
-            bool isFreeSubscription = form["IsFreeSubscription"].ToString().Trim().ToLower() == "true";
-            bool isPaidSubscription = form["IsPaidSubscription"].ToString().Trim().ToLower() == "true";
-            decimal paidAmount = isPaidSubscription ? decimal.Parse(form["PaidAmount"].ToString().Trim()) : 0;
+            string subscriptionType = form["SubscriptionType"].ToString().Trim();
+            decimal paidAmount = subscriptionType == "Paid" ? decimal.Parse(form["PaidAmount"].ToString().Trim()) : 0;
             int appQuantity = int.Parse(form["AppQuantity"].ToString().Trim());
 
             int categoryId = 4; // Assuming Category ID for "IT Service/Support Request-App/Software Installation"
@@ -405,13 +402,13 @@ namespace ServiceDesk_Ticketing.Controllers
             {
                 connection.Open();
                 string sql = @"
-                INSERT INTO AppSoftInstall (AppInstall_IpadAppName, Subscription_Type, Subscription_Amount, AppInstall_IpadQty, Category_ID)
-                VALUES (@AppInstall_IpadAppName, @Subscription_Type, @Subscription_Amount, @AppInstall_IpadQty, @Category_ID)";
+            INSERT INTO AppSoftInstall (AppInstall_IpadAppName, Subscription_Type, Subscription_Amount, AppInstall_IpadQty, Category_ID)
+            VALUES (@AppInstall_IpadAppName, @Subscription_Type, @Subscription_Amount, @AppInstall_IpadQty, @Category_ID)";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@AppInstall_IpadAppName", applicationName);
-                    command.Parameters.AddWithValue("@Subscription_Type", isFreeSubscription ? "Free" : "Paid");
+                    command.Parameters.AddWithValue("@Subscription_Type", subscriptionType);
                     command.Parameters.AddWithValue("@Subscription_Amount", paidAmount);
                     command.Parameters.AddWithValue("@AppInstall_IpadQty", appQuantity);
                     command.Parameters.AddWithValue("@Category_ID", categoryId);
@@ -420,7 +417,7 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "App Installation Request Added";
+                        TempData["Message"] = "Application Installation Request just Added";
                         TempData["MsgType"] = "Success";
                         return RedirectToAction("Submission", "Home");
                     }
@@ -433,6 +430,7 @@ namespace ServiceDesk_Ticketing.Controllers
                 }
             }
         }
+
 
 
         public IActionResult FacebookPost()
@@ -859,8 +857,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
                         if (res == 1)
                         {
-                            TempData["Message"] = "Printing Quota Request Added";
-                            TempData["MsgType"] = "Success";
+                            TempData["Message"] = "Printing Quota Request just Added";
+                            TempData["MsgType"] = "success";
                             return RedirectToAction("Submission", "Home");
                         }
                         else
@@ -878,15 +876,14 @@ namespace ServiceDesk_Ticketing.Controllers
 
 
 
-        
+
 
         [HttpPost]
         public ActionResult SubmitSoftwareInstallation(IFormCollection form)
         {
             string softwareName = form["SoftwareName"].ToString().Trim();
-            bool isFreeSubscription = form["IsFreeSubscription"].ToString().Trim().ToLower() == "true";
-            bool isPaidSubscription = form["IsPaidSubscription"].ToString().Trim().ToLower() == "true";
-            decimal paidAmount = isPaidSubscription ? decimal.Parse(form["PaidAmount2"].ToString().Trim()) : 0;
+            string subscriptionType = form["SubscriptionType"].ToString().Trim();
+            decimal paidAmount = subscriptionType == "Paid" ? decimal.Parse(form["PaidAmount"].ToString().Trim()) : 0;
             string purposeOfInstallation = form["PurposeOfInstallation"].ToString().Trim();
             string whereToInstall = form["WhereToInstall"].ToString().Trim();
             DateTime implementationDate = DateTime.Parse(form["ImplementationDate"].ToString().Trim());
@@ -901,13 +898,13 @@ namespace ServiceDesk_Ticketing.Controllers
             {
                 connection.Open();
                 string sql = @"
-                INSERT INTO AppSoftInstall (SoftName, Subscription_Type, Subscription_Amount, SoftPurpose, SoftImpDate, SoftInstall_Place, UpdateSoft, Software_ManualGuide, Category_ID)
-                VALUES (@SoftName, @Subscription_Type, @Subscription_Amount, @SoftPurpose, @SoftImpDate, @SoftInstall_Place, @UpdateSoft, @Software_ManualGuide, @Category_ID)";
+            INSERT INTO AppSoftInstall (SoftName, Subscription_Type, Subscription_Amount, SoftPurpose, SoftImpDate, SoftInstall_Place, UpdateSoft, Software_ManualGuide, Category_ID)
+            VALUES (@SoftName, @Subscription_Type, @Subscription_Amount, @SoftPurpose, @SoftImpDate, @SoftInstall_Place, @UpdateSoft, @Software_ManualGuide, @Category_ID)";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@SoftName", softwareName);
-                    command.Parameters.AddWithValue("@Subscription_Type", isFreeSubscription ? "Free" : "Paid");
+                    command.Parameters.AddWithValue("@Subscription_Type", subscriptionType);
                     command.Parameters.AddWithValue("@Subscription_Amount", paidAmount);
                     command.Parameters.AddWithValue("@SoftPurpose", purposeOfInstallation);
                     command.Parameters.AddWithValue("@SoftImpDate", implementationDate);
@@ -920,8 +917,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "Software Installation Request Added";
-                        TempData["MsgType"] = "Success";
+                        TempData["Message"] = "Software Installation Request just Added";
+                        TempData["MsgType"] = "success";
                         return RedirectToAction("Submission", "Home");
                     }
                     else
@@ -933,12 +930,13 @@ namespace ServiceDesk_Ticketing.Controllers
                 }
             }
         }
-     
+
 
         [HttpPost]
         public ActionResult SubmitICTSupport(IFormCollection form)
         {
             string ictEventType = form["ICTEventType"].ToString().Trim();
+            
             string primaryLevel = string.Join(",", form["PrimaryLevel"].ToString().Trim().Split(',').Select(x => x.Trim()));
             string logisticRequest = string.Join(",", form["LogisticRequest"].ToString().Trim().Split(',').Select(x => x.Trim()));
             string location = form["Location"].ToString().Trim();
@@ -956,8 +954,8 @@ namespace ServiceDesk_Ticketing.Controllers
             {
                 connection.Open();
                 string sql = @"
-                INSERT INTO EventSupport (AssetID, SupportType, ICT_EventType, ICT_PrimaryLevel, Name, Time, Venue, InCharge, Category_ID)
-                VALUES (@AssetID, 'ICT', @ICT_EventType, @ICT_PrimaryLevel, @Name, @Time, @Venue, @InCharge, @Category_ID)";
+                INSERT INTO EventSupport (AssetID, SupportType,ICT_EventType, ICT_PrimaryLevel, Name, Time, Venue, InCharge, Category_ID)
+                VALUES (@AssetID,'ICT', @ICT_EventType, @ICT_PrimaryLevel, @Name, @Time, @Venue, @InCharge, @Category_ID)";
 
                 using (var command = new SqlCommand(sql, connection))
                 {
@@ -974,8 +972,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "ICT Support Request Added";
-                        TempData["MsgType"] = "Success";
+                        TempData["Message"] = "ICT Support Request just Added";
+                        TempData["MsgType"] = "success";
                         return RedirectToAction("Submission", "Home");
                     }
                     else
@@ -1047,8 +1045,8 @@ namespace ServiceDesk_Ticketing.Controllers
                         // Commit the transaction if all inserts succeed
                         transaction.Commit();
 
-                        TempData["Message"] = "Facebook Post Request Added";
-                        TempData["MsgType"] = "Success";
+                        TempData["Message"] = "Facebook Post Request just Added";
+                        TempData["MsgType"] = "success";
                         return RedirectToAction("Submission", "Home");
                     }
                     catch (Exception ex)
@@ -1135,7 +1133,7 @@ namespace ServiceDesk_Ticketing.Controllers
 
                     if (res == 1)
                     {
-                        TempData["Message"] = "Website Update Request Added";
+                        TempData["Message"] = "Website Update Request justAdded";
                         TempData["MsgType"] = "Success";
                         return RedirectToAction("Submission", "Home");
                     }

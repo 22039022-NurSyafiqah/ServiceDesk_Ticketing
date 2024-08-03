@@ -226,6 +226,9 @@ namespace ServiceDesk_Ticketing.Models
 
 
 
+
+
+
         // New fields for Account Activation for New Staff
         public int AccID { get; set; }
 
@@ -245,7 +248,6 @@ namespace ServiceDesk_Ticketing.Models
         public string Emp_Type { get; set; } = null!;
 
 
-        [Required(ErrorMessage = "Select the Application Required")]
         public int AppReqID { get; set; }
 
         public string AppName { get; set; } = null!;

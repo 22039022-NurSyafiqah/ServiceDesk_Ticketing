@@ -152,10 +152,10 @@
 
             <button type="submit" class="btn btn-primary w-100">Submit</button>
 
-            @if (TempData["Message"] != null)
+            @if (ViewData["Message"] != null)
             {
-                <div class="alert alert-@TempData["MsgType"]">
-                    @TempData["Message"]
+                <div class="alert alert-@ViewData["MsgType"]">
+                    @ViewData["Message"]
                 </div>
             }
 

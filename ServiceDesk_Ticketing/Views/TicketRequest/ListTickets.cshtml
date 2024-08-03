@@ -84,12 +84,6 @@
             {
                 <tr>
                     <td class="center-text">@ticket.TicketID</td>
-@*                     <td class="center-text">
-                        <a asp-controller="TicketRequest" asp-action="ViewTicket" asp-route-id="@ticket.TicketID" style="text-decoration:none; color:dodgerblue">
-                            @ticket.Category_Name
-                        </a>
-                    </td> *@
-
                     <td class="center-text">@ticket.Category_Name</td>
                     <td class="center-text">@ticket.TicketStatus_Type</td>
                     <td class="center-text">@ticket.FullName</td>
@@ -119,7 +113,6 @@
                             <i class="bi bi-eye"></i>
                         </a>
                     </td>
-
 
 
                 </tr>

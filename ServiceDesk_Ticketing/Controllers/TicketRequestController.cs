@@ -22,6 +22,8 @@ namespace ServiceDesk_Ticketing.Controllers
 
         }
 
+
+
         // This action method retrieves and displays all tickets
         public IActionResult ListTickets()
         {
@@ -52,26 +54,80 @@ namespace ServiceDesk_Ticketing.Controllers
 
         public IActionResult TrackIssues()
         {
-            // Get the currently logged-in user's ID or username
-            string userId = User.Identity.Name;
+            try
+            {
+                // Retrieve the current user's email from the identity
+                string currentUserEmail = User.Identity.Name; // Adjust as necessary
+                System.Diagnostics.Debug.WriteLine($"Current User Identity Name: {currentUserEmail}");
 
-            // SQL query to select necessary fields from the TicketRequest table joined with Category and TicketStatus tables
-            string sql = @"SELECT 
-                    tr.TicketID,
-                    c.Category_Name,
-                    ts.TicketStatus_Type,
-                    tr.CreatedBy
-                   FROM TicketRequest tr
-                   LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
-                   LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID
-                   WHERE tr.CreatedBy = userId"; // Filter by the logged-in user's ID
+                if (string.IsNullOrEmpty(currentUserEmail))
+                {
+                    // Handle case where email is not found
+                    TempData["Message"] = "User email not found.";
+                    TempData["MsgType"] = "Error";
+                    return RedirectToAction("HomePage", "Home");
+                }
 
-            // Get the list of TicketRequest objects from the database using the DBUtl helper class
-            List<TicketRequest> issuelist = DBUtl.GetList<TicketRequest>(sql, new { UserId = userId });
+                // Connection string from configuration
+                string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-            // Pass the list to the view for display
-            return View(issuelist);
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                        string sql = @"
+                                    SELECT 
+                                        tr.TicketID,
+                                        c.Category_Name,
+                                        ts.TicketStatus_Type,
+                                        tr.CreatedBy
+                                    FROM TicketRequest tr
+                                    LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
+                                    LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID
+                                    WHERE tr.CreatedBy = @CreatedBy";
+
+                    using (var command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@CreatedBy", currentUserEmail);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            var tickets = new List<TicketRequest>();
+                            while (reader.Read())
+                            {
+                                tickets.Add(new TicketRequest
+                                {
+                                    TicketID = reader.GetInt32(0),
+                                    Category_Name = reader.GetString(1),
+                                    TicketStatus_Type = reader.GetString(2),
+                                    CreatedBy = reader.GetString(3)
+                                });
+                            }
+
+                            // Log the number of records found
+                            System.Diagnostics.Debug.WriteLine($"Number of tickets found: {tickets.Count}");
+
+                            if (tickets.Count == 0)
+                            {
+                                TempData["Message"] = "No tickets found for the current user.";
+                                TempData["MsgType"] = "warning";
+                            }
+
+                            return View(tickets);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception message
+                System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                TempData["Message"] = "An error occurred while fetching tickets.";
+                TempData["MsgType"] = "Error";
+                return RedirectToAction("Error", "Home");
+            }
         }
+
+
 
 
 
@@ -176,26 +232,6 @@ namespace ServiceDesk_Ticketing.Controllers
             }
         }
 
-/*        [Authorize(Roles = "Staff")]
-        public IActionResult Privacy()
-        {
-            string sql = @"SELECT 
-                    tr.TicketID,
-                    c.Category_Name,
-                    ts.TicketStatus_Type
-                   FROM TicketRequest tr
-                   LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
-                   LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID";
-
-            List<TicketRequest> list = DBUtl.GetList<TicketRequest>(sql);
-
-            if (list == null)
-            {
-                list = new List<TicketRequest>();
-            }
-
-            return View(list);
-        }*/
 
 
         private string GetControllerForCategory(int categoryId)
@@ -240,21 +276,21 @@ namespace ServiceDesk_Ticketing.Controllers
         public IActionResult ViewTicket(int id)
         {
             string sql = @"
-        SELECT 
-            tr.TicketID,
-            c.Category_Name,
-            ts.TicketStatus_Type,
-            su.FullName,
-            p.Priority_Type,
-            tr.Ticket_StartDate,
-            tr.TicketLastUpdated,
-            tr.CreatedBy
-        FROM TicketRequest tr
-        LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
-        LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID
-        LEFT JOIN SysUser su ON su.User_ID = tr.User_ID
-        LEFT JOIN Priority p ON p.Priority_ID = tr.Priority_ID
-        WHERE tr.TicketID = @TicketID";
+                        SELECT 
+                            tr.TicketID,
+                            c.Category_Name,
+                            ts.TicketStatus_Type,
+                            su.FullName,
+                            p.Priority_Type,
+                            tr.Ticket_StartDate,
+                            tr.TicketLastUpdated,
+                            tr.CreatedBy
+                        FROM TicketRequest tr
+                        LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
+                        LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID
+                        LEFT JOIN SysUser su ON su.User_ID = tr.User_ID
+                        LEFT JOIN Priority p ON p.Priority_ID = tr.Priority_ID
+                        WHERE tr.TicketID = @TicketID";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             using (var command = new SqlCommand(sql, connection))
@@ -288,6 +324,9 @@ namespace ServiceDesk_Ticketing.Controllers
                 }
             }
         }
+
+
+
 
         [Authorize(Roles = "ICT Team")]
         [HttpGet]
@@ -332,7 +371,7 @@ namespace ServiceDesk_Ticketing.Controllers
                         };
 
                         ViewData["TicketStatus"] = GetTicketStatusList(); // Implement this method
-                        ViewData["Users"] = GetUsersList(); // Implement this methodxxxxxxx 
+                        ViewData["Users"] = GetUsersList(); // Implement this method
                         ViewData["Priority"] = GetPriorityList(); // Implement this method
 
                         return View(ticket);
@@ -346,11 +385,6 @@ namespace ServiceDesk_Ticketing.Controllers
                 }
             }
         }
-
-
-
-
-
 
 
 
@@ -425,66 +459,6 @@ namespace ServiceDesk_Ticketing.Controllers
             // If model state is not valid, return to the same view
             return View(updatedTicket);
         }
-
-
-
-/*        [Authorize(Roles = "ICT Team")]
-        [HttpGet]
-        public IActionResult ViewTicket(int id)
-        {
-            string sql = @"
-        SELECT 
-            tr.TicketID,
-            c.Category_Name,
-            ts.TicketStatus_Type,
-            su.FullName,
-            p.Priority_Type,
-            tr.Ticket_StartDate,
-            tr.TicketLastUpdated,
-            tr.CreatedBy
-        FROM TicketRequest tr
-        LEFT JOIN Category c ON c.Category_ID = tr.Category_ID
-        LEFT JOIN TicketStatus ts ON ts.TicketStatus_ID = tr.TicketStatus_ID
-        LEFT JOIN SysUser su ON su.User_ID = tr.User_ID
-        LEFT JOIN Priority p ON p.Priority_ID = tr.Priority_ID
-        WHERE tr.TicketID = @TicketID";
-
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            using (var command = new SqlCommand(sql, connection))
-            {
-                command.Parameters.AddWithValue("@TicketID", id);
-                connection.Open();
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var ticket = new TicketRequest
-                        {
-                            TicketID = reader.GetInt32(0),
-                            Category_Name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                            TicketStatus_Type = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                            FullName = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                            Priority_Type = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                            Ticket_StartDate = reader.GetDateTime(5),
-                            TicketLastUpdated = reader.GetDateTime(6),
-                            CreatedBy = reader.IsDBNull(7) ? string.Empty : reader.GetString(7)
-                        };
-
-                        return View(ticket); // Ensure you have a View named ViewTicket to display the ticket details
-                    }
-                    else
-                    {
-                        ViewData["Message"] = "Ticket not found.";
-                        ViewData["MsgType"] = "danger";
-                        return RedirectToAction("ListTickets");
-                    }
-                }
-            }
-        }*/
-
-
-
-
 
 
 

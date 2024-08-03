@@ -1,4 +1,4 @@
-﻿@model TicketRequest
+﻿5@model TicketRequest
 
 @{
     ViewData["Title"] = "View Ticket";
@@ -31,8 +31,17 @@
                         <dt class="col-sm-4">Ticket Start Date:</dt>
                         <dd class="col-sm-8">@Model.Ticket_StartDate.ToString("yyyy-MM-dd")</dd>
 
-                        <dt class="col-sm-4">Ticket End Date: </dt>
-                        <dd class="col-sm-8">@Model.TicketLastUpdated.ToString("yyyy-MM-dd")</dd>
+                        <dt class="col-sm-4">Ticket End Date:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.TicketStatus_Type == "Closed")
+                            {
+                                @Model.TicketLastUpdated.ToString("yyyy-MM-dd")
+                            }
+                            else
+                            {
+                                @:N/A
+                            }
+                        </dd>
 
                         <dt class="col-sm-4">Created By:</dt>
                         <dd class="col-sm-8">@Model.CreatedBy</dd>
@@ -47,19 +56,3 @@
         </div>
     </div>
 </div>
-
-@section Styles {
-    <style>
-        .card-header {
-            border-bottom: 2px solid #007bff;
-        }
-
-        .card-body {
-            background-color: #f8f9fa;
-        }
-
-        .card-footer {
-            background-color: #f1f1f1;
-        }
-    </style>
-}
